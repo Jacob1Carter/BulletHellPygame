@@ -198,7 +198,7 @@ class Player:
             (5, 20))
         self.max_shoot_delay = 0.2 * main.FPS
         self.shoot_time = self.max_shoot_delay
-        self.max_health = 100
+        self.max_health = 200
         self.health = self.max_health
         self.tag = "0"
         self.overheat = 0
