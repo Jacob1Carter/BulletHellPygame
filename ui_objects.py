@@ -1,4 +1,4 @@
-﻿#   \ui.py
+﻿#   \ui_objects.py
 
 import main
 
@@ -85,7 +85,7 @@ class IntButton:
             self.text_colour = text_colour
             self.rect = main.pygame.Rect(self.x, self.y, self.width, self.height)
             self.cool = 0
-            self.click_cooldown = 0.1 * FPS
+            self.click_cooldown = 0.1 * main.FPS
 
         def is_clicked(self, *buttons):
             if self.cool <= 0:
@@ -172,7 +172,7 @@ class IntButton:
             self.text_colour = text_colour
             self.rect = main.pygame.Rect(self.x, self.y, self.width, self.height)
             self.cool = 0
-            self.click_cooldown = 0.1 * FPS
+            self.click_cooldown = 0.1 * main.FPS
 
         def is_clicked(self, *buttons):
             if self.cool <= 0:
@@ -209,4 +209,4 @@ class Reticule:
                 elif i == 5:
                     self.thickness = int(line)
 
-#   \ui.py
+#   \ui_objects.py

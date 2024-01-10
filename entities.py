@@ -74,8 +74,7 @@ class Bullet:
         self.height = 40
         self.damage = 10
         self.x, self.y = owner.x, owner.y
-        self.img = main.pygame.transform.scale(owner.bullet_img,
-                                          (self.width, self.height))
+        self.img = main.pygame.transform.scale(owner.bullet_img, (self.width, self.height))
         self.rect = main.pygame.Rect(self.x, self.y, self.width, self.height)
         self.rect = self.img.get_rect(center=(owner.x, owner.y))
         self.angle = owner.angle
@@ -290,8 +289,7 @@ class Slash:
         self.radius = 180
         self.angle = -player.angle + self.initial_offset
         self.length = main.math.pi * 40
-        self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "Slash.png")),
-                                          (self.width, self.height))
+        self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "Slash.png")), (self.width, self.height))
         self.rotated_img = self.img
         self.rect = self.img.get_rect(center=(player.x, player.y))
         #   self.y += 40
