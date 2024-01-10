@@ -1,6 +1,7 @@
 #   \entities.py
 
 import main
+import math
 
 #   Rocket class, used as an object that comes from the player and follows the mouse into enemies, which it then
 #   damages. All rockets are managed by handle_rockets function.
@@ -277,6 +278,17 @@ class Slash:
         self.slash_prints = []
         self.x = player.x
         self.y = player.y
+        self.angle = player.angle + 60
+
+        self.distance = 50
+
+        self.x += self.distance * math.sin(
+            math.radians(abs(self.angle - 450) - 90))
+        self.y -= self.distance * math.cos(
+            math.radians(abs(self.angle - 450) - 90))
+
+        self.rect.center = (int(self.x), int(self.y))
+
         self.width = 36
         self.height = 44
         self.vel = 5 / main.FPS
