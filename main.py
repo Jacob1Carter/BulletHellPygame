@@ -1,7 +1,11 @@
+#   \main.py
+
 import pygame
 import math
 import os
 import random
+import ui
+import entities
 from screeninfo import get_monitors
 
 pygame.font.init()
@@ -35,509 +39,6 @@ COLOURS = {
     "orange": (255, 125, 0),
     "purple": (160, 70, 160)
 }
-
-
-#   Rocket class, used as an object that comes from the player and follows the mouse into enemies, which it then
-#   damages. All rockets are managed by handle_rockets function.
-class Rocket:
-
-    def __init__(self, x, y, ang):
-        self.x, self.y = x, y
-        self.width = 50
-        self.height = 102
-        self.explosion_radius = 300
-        self.rect = pygame.Rect(self.x - (self.width // 2), self.y, self.width, self.height)
-        self.angle = ang
-        self.vel = 1000 / FPS
-        self.imgs = [
-            pygame.transform.scale(pygame.image.load(os.path.join("Assets", "rocket1.png")), (self.width, self.height)),
-            pygame.transform.scale(pygame.image.load(os.path.join("Assets", "rocket2.png")), (self.width, self.height)),
-        ]
-        self.img_ind = 0
-        self.flame_imgs = []
-        self.explode_imgs = []
-        self.uptime = 0
-        self.light_t = 1 * FPS
-        self.smooth_turn = False
-        self.exploding = False
-        self.explode_max_time = 0.5 * FPS
-        self.explode_time = self.explode_max_time
-        self.proximity = 40
-        self.proximity_time_max = 0.5 * FPS
-        self.proximity_time = self.proximity_time_max
-        self.health = 30
-
-    def check_radius(self, target):
-        distance = math.sqrt((target.x - self.x) ** 2 + (target.y - self.y) ** 2)
-        if distance <= self.explosion_radius:
-            return True
-        else:
-            return False
-
-    #   Explode method calculates the affected radius of the rocket's explosion in order to find the affected entities.
-    def explode(self, player, enemies):
-        self.exploding = True
-        dmg_lst = []
-        if self.check_radius(player):
-            dmg_lst.append(player)
-
-        for enemy in enemies:
-            if self.check_radius(enemies[enemy]):
-                dmg_lst.append(enemies[enemy])
-
-        return dmg_lst
-
-    def take_damage(self, dmg, player, enemies):
-        self.health -= dmg
-        if self.health <= 0:
-            self.health = 0
-            return self.explode(player, enemies)
-        else:
-            return []
-
-
-#   Bullet class, used by players and enemies. Travel along the vector of their owners facing direction at the time
-#   of their creation. Simply deal damage when hitting an opposing entity. All bullets are managed by
-#   handle_bullets function.
-class Bullet:
-
-    def __init__(self, owner, bullets):
-        self.tag = owner.tag
-        self.id = "B{}".format(len(bullets) + 1)
-        self.owner = owner
-        self.width = 10
-        self.height = 40
-        self.damage = 10
-        self.x, self.y = owner.x, owner.y
-        self.img = pygame.transform.scale(owner.bullet_img,
-                                          (self.width, self.height))
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        self.rect = self.img.get_rect(center=(owner.x, owner.y))
-        self.angle = owner.angle
-        self.vel = 3000 / FPS
-
-
-class HealthPack:
-
-    def __init__(self, health, time, x, y):
-        self.x, self.y = x, y
-        self.health = health
-        self.time = time * FPS
-        self.width, self.height = 40, 40
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        self.img = pygame.transform.scale(
-            pygame.image.load(os.path.join("Assets", "Health pack.png")),
-            (self.width, self.height))
-        self.timeout = 0
-
-
-#   Enemy class, low-health enemies that attack and can be attacked by the player. More will appear over time,
-#   all of them are controlled by handle_enemies function.
-class Enemy:
-
-    def __init__(self, x, y, health, armour, speed, aggression):
-        self.team_code = 2
-        self.max_health = health
-        self.health = self.max_health
-        self.max_armour = armour
-        self.armour = self.max_armour
-        self.armour_mit = 0.4
-        self.width = 100
-        self.height = 100
-        if armour == 0:
-            self.img = pygame.transform.scale(
-                pygame.image.load(os.path.join("Assets", "Enemy1.png")),  # "IMG_7363.png"  "Enemy1.png" "Th.png"
-                (self.width, self.height))
-        else:
-            self.img = pygame.transform.scale(
-                pygame.image.load(os.path.join("Assets", "Enemy2.png")),  # "IMG_7363.png"  "Enemy2.png" "Th.png"
-                (self.width, self.height))
-        self.angle = 0
-        self.x = x
-        self.y = y
-        self.vel = speed / FPS
-        self.x_vel = 0
-        self.y_vel = 0
-        self.dir = 1
-        self.move_time = 0
-        self.bullet_img = pygame.image.load(
-            os.path.join("Assets", "Bullets", "Bullet_red.png"))
-        self.aggression = aggression
-        self.cooldown = ((0.8 * FPS) + (random.randint(0, 4) * FPS)) / self.aggression
-        self.tag = "1"
-
-    def get_vel(self, edge=0):
-        div = random.random()
-        self.x_vel = self.vel * div
-        self.y_vel = self.vel - self.x_vel
-
-        if edge == 0:
-            self.dir = random.choice((1, 2, 3, 4))
-        elif edge == 1:
-            self.dir = random.choice((3, 4))
-        elif edge == 2:
-            self.dir = random.choice((1, 4))
-        elif edge == 3:
-            self.dir = random.choice((1, 2))
-        elif edge == 4:
-            self.dir = random.choice((2, 3))
-
-    def shoot(self, bullets):
-        self.cooldown = ((0.8 * FPS) + (random.randint(0, 2) * FPS)) / self.aggression
-        return Bullet(self, bullets)
-
-    def take_damage(self, dam):
-        if self.armour > 0:
-            self.armour -= dam
-            dam *= self.armour_mit
-            if self.armour <= 0:
-                self.armour = 0
-
-        self.health -= dam
-        if self.health < 0:
-            self.health = 0
-
-
-#   Player class, controlled entirely by the user, managed by handle_player function. Is capable of shooting, dashing,
-#   launching rockets and moving. Has limited health that will cause the games end upon reaching 0.
-class Player:
-
-    def __init__(self):
-        self.team_code = 1
-        self.width = 100
-        self.height = 100
-        self.y = (HEIGHT // 3) * 2
-        self.x = (WIDTH // 2)
-        self.vel = 350 / FPS
-        self.img = pygame.transform.scale(
-            pygame.image.load(os.path.join("Assets", "ArrowHead1.png")),
-            # "Rizzvan.png""ArrowHead1.png""Brookiolyn.png"
-            (self.width, self.height))
-        self.angle = 0
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)    #(200, 200)
-        self.dash_distance = WIDTH / 3
-        self.cooldown = 5 * FPS
-        self.active_cooldown = self.cooldown
-        self.cooldown_f = -1
-        self.ico_i = -1
-        self.r_ico_i = -1
-        self.r_cooldown = 10 * FPS
-        self.r_cooldown_f = -1
-        self.r_active_cooldown = self.r_cooldown
-        self.slash_ico_i = -1
-        self.slash_cooldown = 5 * FPS
-        self.slash_cooldown_f = -1
-        self.slash_active_cooldown = self.slash_cooldown
-        self.bullet_img = pygame.transform.scale(
-            pygame.image.load(
-                os.path.join("Assets", "Bullets", "Bullet_green.png")),
-            (5, 20))
-        self.max_shoot_delay = 0.2 * FPS
-        self.shoot_time = self.max_shoot_delay
-        self.max_health = 50000  # 100
-        self.health = self.max_health
-        self.tag = "0"
-        self.overheat = 0
-        self.max_overheat = 150
-        self.overheat_cooldown = 0
-        self.shoot_cool = 0.8 * FPS
-        self.overheat_cool = 2.4 * FPS
-        self.cooldown_rate = 30 / FPS
-        self.kills = 0
-
-    def dash(self, x, y):  # dash in the direction of the mouse
-        a = abs(self.x - x)
-        b = abs(self.y - y)
-
-        c = math.sqrt(pow(a, 2) + pow(b, 2))
-
-        mult = self.dash_distance / c
-
-        if self.x < x:
-            self.x += a * mult
-            if self.y < y:
-                self.y += b * mult
-            else:
-                self.y -= b * mult
-        else:
-            self.x -= a * mult
-            if self.y < y:
-                self.y += b * mult
-            else:
-                self.y -= b * mult
-
-        if self.x <= 0:
-            self.x = 1
-        elif self.x >= WIDTH:
-            self.x = WIDTH - 1
-        if self.y <= 0:
-            self.y = 1
-        elif self.y >= HEIGHT:
-            self.y = HEIGHT - 1
-
-    def shoot(self, bullets):
-        self.shoot_time = self.max_shoot_delay
-        self.overheat += 5
-        self.overheat_cooldown = self.shoot_cool
-        if self.overheat > self.max_overheat:
-            self.overheat = self.max_overheat
-            self.overheat_cooldown = self.overheat_cool
-        return Bullet(self, bullets)
-
-    def shoot_rocket(self):
-        return Rocket(self.x, self.y, self.angle)
-
-    def take_damage(self, dam):
-        self.health -= dam
-        if self.health < 0:
-            self.health = 0
-
-    def heal(self, dam):
-        self.health += dam
-        if self.health > self.max_health:
-            self.health = self.max_health
-
-    def slash(self):
-        return Slash(self)
-
-
-class Slash:
-    class SlashPrint:
-        def __init__(self, rect, angle):
-            self.rect = rect
-            self.angle = angle
-
-    #   slash animation cuts, printing 10 copies of Slash.png each turned 12 degrees form the previous,
-    #   giving a total arc of 120 degrees
-    def __init__(self, player):
-        self.slash_prints = []
-        self.x = player.x
-        self.y = player.y
-        self.width = 36
-        self.height = 44
-        self.vel = 5 / FPS
-        self.arc = 120
-        self.cast_time = 30 * FPS
-        self.turn_per_frame = self.arc / self.cast_time
-        self.display_angle = 0
-        self.turn = 12
-        self.initial_offset = math.radians(60)
-        self.radius = 180
-        self.angle = -player.angle + self.initial_offset
-        self.length = math.pi * 40
-        self.img = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "Slash.png")),
-                                          (self.width, self.height))
-        self.rotated_img = self.img
-        self.rect = self.img.get_rect(center=(player.x, player.y))
-        #   self.y += 40
-
-
-#   Button class, used in the pause menu, handles by id_clicked method in main()
-#   and click cooldowns are handled by handle_objects()
-class Button:
-
-    def __init__(self, x, y, width, height, colour, text, text_colour):
-        self.x = x
-        self.y = y
-        self.width = width
-        self.height = height
-        self.colour = colour
-        self.text = text
-        self.text_colour = text_colour
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-        self.cool = 0
-        self.click_cooldown = 0.1 * FPS
-
-    def is_clicked(self, *buttons):
-        if self.cool <= 0:
-            mouse_pressed = pygame.mouse.get_pressed()
-            pressed = False
-            for b in buttons:
-                if mouse_pressed[b]:
-                    pressed = True
-                    break
-
-            if pressed:
-                x, y = pygame.mouse.get_pos()
-                if self.x <= x <= self.x + self.width and self.y <= y <= self.y + self.height:
-                    self.cool = self.click_cooldown
-                    return True
-
-
-class IntButton:
-
-    def __init__(self, x, y, width, height, colour, text, text_colour):
-
-        self.jumpDown = self.JumpDown(x, y, height, colour, text_colour)
-        self.down = self.Down(x, y, height, colour, text_colour)
-        self.body = self.Body(x, y, width, height, colour, text, text_colour)
-        self.up = self.Up(x, y, width, height, colour, text_colour)
-        self.jumpUp = self.JumpUp(x, y, width, height, colour, text_colour)
-
-    class JumpDown:
-
-        def __init__(self, x, y, height, colour, text_colour):
-            self.x = x
-            self.y = y
-            self.width = height
-            self.height = height
-            self.colour = colour
-            self.text = "↡"
-            self.text_colour = text_colour
-            self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-            self.cool = 0
-            self.click_cooldown = 0.1 * FPS
-
-        def is_clicked(self, *buttons):
-            if self.cool <= 0:
-                mouse_pressed = pygame.mouse.get_pressed()
-                pressed = False
-                for b in buttons:
-                    if mouse_pressed[b]:
-                        pressed = True
-                        break
-
-                if pressed:
-                    x, y = pygame.mouse.get_pos()
-                    if self.x <= x <= self.x + self.width and self.y <= y <= self.y + self.height:
-                        self.cool = self.click_cooldown
-                        return True
-
-    class Down:
-
-        def __init__(self, x, y, height, colour, text_colour):
-            self.x = x + height + 10
-            self.y = y
-            self.width = height
-            self.height = height
-            self.colour = colour
-            self.text = "↓"
-            self.text_colour = text_colour
-            self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-            self.cool = 0
-            self.click_cooldown = 0.1 * FPS
-
-        def is_clicked(self, *buttons):
-            if self.cool <= 0:
-                mouse_pressed = pygame.mouse.get_pressed()
-                pressed = False
-                for b in buttons:
-                    if mouse_pressed[b]:
-                        pressed = True
-                        break
-
-                if pressed:
-                    x, y = pygame.mouse.get_pos()
-                    if self.x <= x <= self.x + self.width and self.y <= y <= self.y + self.height:
-                        self.cool = self.click_cooldown
-                        return True
-
-    class Body:
-
-        def __init__(self, x, y, width, height, colour, text, text_colour):
-            self.x = x + (height * 2) + (10 * 2)  # left + 2 boxes, + 2 10 pixel gaps
-            self.y = y
-            self.width = width - (((height * 2) + (10 * 2)) * 2)
-            self.height = height
-            self.colour = colour
-            self.text = text
-            self.text_colour = text_colour
-            self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-            self.cool = 0
-            self.click_cooldown = 0.1 * FPS
-
-        def is_clicked(self, *buttons):
-            if self.cool <= 0:
-                mouse_pressed = pygame.mouse.get_pressed()
-                pressed = False
-                for b in buttons:
-                    if mouse_pressed[b]:
-                        pressed = True
-                        break
-
-                if pressed:
-                    x, y = pygame.mouse.get_pos()
-                    if self.x <= x <= self.x + self.width and self.y <= y <= self.y + self.height:
-                        self.cool = self.click_cooldown
-                        return True
-
-    class Up:
-
-        def __init__(self, x, y, width, height, colour, text_colour):
-            self.x = x + (height * 2) + (10 * 3) + (width - (((height * 2) + (10 * 2)) * 2))
-            self.y = y
-            self.width = height
-            self.height = height
-            self.colour = colour
-            self.text = "↑"
-            self.text_colour = text_colour
-            self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-            self.cool = 0
-            self.click_cooldown = 0.1 * FPS
-
-        def is_clicked(self, *buttons):
-            if self.cool <= 0:
-                mouse_pressed = pygame.mouse.get_pressed()
-                pressed = False
-                for b in buttons:
-                    if mouse_pressed[b]:
-                        pressed = True
-                        break
-
-                if pressed:
-                    x, y = pygame.mouse.get_pos()
-                    if self.x <= x <= self.x + self.width and self.y <= y <= self.y + self.height:
-                        self.cool = self.click_cooldown
-                        return True
-
-    class JumpUp:
-
-        def __init__(self, x, y, width, height, colour, text_colour):
-            self.x = x + (height * 3) + (10 * 4) + (width - (((height * 2) + (10 * 2)) * 2))
-            self.y = y
-            self.width = height
-            self.height = height
-            self.colour = colour
-            self.text = "↟"
-            self.text_colour = text_colour
-            self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
-            self.cool = 0
-            self.click_cooldown = 0.1 * FPS
-
-        def is_clicked(self, *buttons):
-            if self.cool <= 0:
-                mouse_pressed = pygame.mouse.get_pressed()
-                pressed = False
-                for b in buttons:
-                    if mouse_pressed[b]:
-                        pressed = True
-                        break
-
-                if pressed:
-                    x, y = pygame.mouse.get_pos()
-                    if self.x <= x <= self.x + self.width and self.y <= y <= self.y + self.height:
-                        self.cool = self.click_cooldown
-                        return True
-
-
-class Reticule:
-
-    def __init__(self):
-        with open(os.path.join("Settings", "Reticule.txt")) as f:
-            for i, x in enumerate(f):
-                line = x.strip()
-                if i == 0:
-                    self.colour = tuple(line)
-                elif i == 1:
-                    self.width = int(line)
-                elif i == 2:
-                    self.height = int(line)
-                elif i == 3:
-                    self.dot = int(line)
-                elif i == 4:
-                    self.gap = int(line)
-                elif i == 5:
-                    self.thickness = int(line)
 
 
 #   Called once per frame, goes through all enemies, turns them to face the player, mov es them in a random direction,
@@ -615,7 +116,7 @@ def handle_enemies(enemies, player, bullets, health_packs):
 
     for enemy in kill_lst:
         if random.randint(1, 7) == 1:
-            health_packs.append(HealthPack(30, 10, enemies[enemy].x, enemies[enemy].y))
+            health_packs.append(entities.HealthPack(30, 10, enemies[enemy].x, enemies[enemy].y))
         del enemies[enemy]
         player.kills += 1
 
@@ -1099,7 +600,7 @@ def reset():
     # returns: pause, player, enemies, enemy_spawn_cooldown, esc_time, num, [bullets, rockets, health_packs, slashes],
     # [runtime, ticks, phase]
 
-    return False, Player(), {}, False, 0, 1, [[], [], [], []], [0, 0, 1]
+    return False, entities.Player(), {}, False, 0, 1, [[], [], [], []], [0, 0, 1]
 
 
 def main():
@@ -1108,7 +609,7 @@ def main():
     reticule_bool = False
     ui = True
 
-    player = Player()
+    player = entities.Player()
 
     enemies = {}
 
@@ -1129,39 +630,39 @@ def main():
     health_packs = []
     slashes = []
 
-    play_button = Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"],
+    play_button = ui.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"],
                          "PLAY", COLOURS["white"])
-    restart_button = Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60, COLOURS["dark_grey"],
+    restart_button = ui.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60, COLOURS["dark_grey"],
                             "RESTART", COLOURS["white"])
-    settings_button = Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60,
+    settings_button = ui.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60,
                              COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
-    exit_button = Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"],
+    exit_button = ui.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"],
                          "EXIT", COLOURS["white"])
 
-    reticule_button = Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"],
+    reticule_button = ui.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"],
                              "EDIT RETICULE", COLOURS["white"])
-    back_button = Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60,
+    back_button = ui.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60,
                          COLOURS["light_grey"], "BACK", COLOURS["white"])
 
-    width_button = IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 140, WIDTH // 4, 60, COLOURS["green"],
+    width_button = ui.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 140, WIDTH // 4, 60, COLOURS["green"],
                              "PLAY", COLOURS["white"])
 
-    height_button = IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"],
+    height_button = ui.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"],
                               "PLAY", COLOURS["white"])
 
-    dot_button = IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60, COLOURS["dark_grey"],
+    dot_button = ui.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60, COLOURS["dark_grey"],
                            "RESTART", COLOURS["white"])
 
-    gap_button = IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60,
+    gap_button = ui.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60,
                            COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
 
-    thickness_button = IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"],
+    thickness_button = ui.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"],
                                  "EXIT", COLOURS["white"])
 
-    reticule_back_button = Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 235, WIDTH // 4, 60,
+    reticule_back_button = ui.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 235, WIDTH // 4, 60,
                                   COLOURS["light_grey"], "BACK", COLOURS["white"])
 
-    reticule = Reticule()
+    reticule = ui.Reticule()
 
     ticks = 0
 
@@ -1254,14 +755,14 @@ def main():
                     if random.random() > 0.1:
                         enemies.update({
                             num:
-                                Enemy(random.randint(30, WIDTH - 30),
+                                entities.Enemy(random.randint(30, WIDTH - 30),
                                       random.randint(30, HEIGHT - 30),
                                       15, 0, 300, 1)
                         })
                     else:
                         enemies.update({
                             num:
-                                Enemy(random.randint(30, WIDTH - 30),
+                                entities.Enemy(random.randint(30, WIDTH - 30),
                                       random.randint(30, HEIGHT - 30),
                                       30, 30, 400, 1.2)
                         })
@@ -1334,3 +835,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+#   \main.py
