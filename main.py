@@ -51,7 +51,8 @@ def handle_enemies(enemies, player, bullets, health_packs):
 
         #   Face player
 
-        enemies[enemy].angle = (360 - math.atan2(player.y - enemies[enemy].y, player.x - enemies[enemy].x) * 180 / math.pi) - 90
+        enemies[enemy].angle = (360 - math.atan2(player.y - enemies[enemy].y,
+                                                 player.x - enemies[enemy].x) * 180 / math.pi) - 90
         rot_image = pygame.transform.rotate(enemies[enemy].img, enemies[enemy].angle)
         enemies[enemy].rect = rot_image.get_rect(center=(enemies[enemy].x, enemies[enemy].y))
 
@@ -256,7 +257,7 @@ def handle_bullets(bullets, player, enemies):
 def handle_slashes(slashes, player):
     #   rotate and move
     for slash in slashes:
-        print(slash.angle)
+        #   print(slash.angle)
 
         pass
 
@@ -268,10 +269,9 @@ def handle_slashes(slashes, player):
 
         """
 
-        rotation_angle = -math.degrees(slash.angle) + 180
+        rotation_angle = slash.angle  # -math.degrees(slash.angle) + 180
         slash.rotated_img = pygame.transform.rotate(slash.img, rotation_angle)
         slash.rect = slash.rotated_img.get_rect(center=(slash.x, slash.y))
-
 
 
 def handle_rockets(rockets, player, enemies, bullets):
@@ -349,9 +349,6 @@ def display(player, enemies, dashes, bullets, r_icos, slash_icos, rockets, slash
             health_packs,
             reticule, phase, runtime, ui):
     WIN.fill(COLOURS["black"])
-
-    #   Show health packs
-
     for pack in health_packs:
         WIN.blit(pack.img, pack.rect)
 
@@ -398,7 +395,8 @@ def display(player, enemies, dashes, bullets, r_icos, slash_icos, rockets, slash
     pygame.display.update()
 
 
-def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, progress_bar_ico, reticule, phase, runtime):
+def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
+               runtime):
     for enemy in enemies:
         pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(
             (enemies[enemy].x - (enemies[enemy].width / 2)),
@@ -454,7 +452,8 @@ def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, p
     kill_text = FONT3.render("KILLS: {}".format(player.kills), True, COLOURS["white"])
     WIN.blit(kill_text, (((WIDTH / 2) - (kill_text.get_width() / 2)), (20 + kill_text.get_height())))
 
-    healthpack_text = FONT3.render("Health Packs: {}".format(len(player.collected_health_packs)), True, COLOURS["white"])
+    healthpack_text = FONT3.render("Health Packs: {}".format(len(player.collected_health_packs)), True,
+                                   COLOURS["white"])
     WIN.blit(healthpack_text, (WIDTH - healthpack_text.get_width() - 10, 0 + 10))
 
     pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(15, HEIGHT - 8, (player.health / player.max_health) * 200, 1))

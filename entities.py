@@ -190,7 +190,7 @@ class Player:
         self.r_cooldown_f = -1
         self.r_active_cooldown = self.r_cooldown
         self.slash_ico_i = -1
-        self.slash_cooldown = 5 * main.FPS
+        self.slash_cooldown = 1 * main.FPS  #   5
         self.slash_cooldown_f = -1
         self.slash_active_cooldown = self.slash_cooldown
         self.bullet_img = main.pygame.transform.scale(
@@ -297,6 +297,8 @@ class Slash:
             math.radians(abs(self.angle - 450) - 90))
 
         self.rect.center = (int(self.x), int(self.y))
+
+        self.angle = -330
 
         self.vel = 5 / main.FPS
         self.arc = 120
