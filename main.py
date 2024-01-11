@@ -255,21 +255,12 @@ def handle_bullets(bullets, player, enemies):
 
 
 def handle_slashes(slashes, player):
-    #   rotate and move
     for slash in slashes:
-        #   print(slash.angle)
-
-        pass
-
-        """
-
         slash.angle += slash.vel
         slash.x = player.x + slash.radius * math.cos(slash.angle)
         slash.y = player.y + slash.radius * math.sin(slash.angle)
 
-        """
-
-        rotation_angle = slash.angle  # -math.degrees(slash.angle) + 180
+        rotation_angle = -math.degrees(slash.angle) + 180
         slash.rotated_img = pygame.transform.rotate(slash.img, rotation_angle)
         slash.rect = slash.rotated_img.get_rect(center=(slash.x, slash.y))
 

@@ -190,7 +190,7 @@ class Player:
         self.r_cooldown_f = -1
         self.r_active_cooldown = self.r_cooldown
         self.slash_ico_i = -1
-        self.slash_cooldown = 1 * main.FPS  #   5
+        self.slash_cooldown = 5 * main.FPS
         self.slash_cooldown_f = -1
         self.slash_active_cooldown = self.slash_cooldown
         self.bullet_img = main.pygame.transform.scale(
@@ -277,40 +277,23 @@ class Slash:
     #   giving a total arc of 120 degrees
     def __init__(self, player):
         self.slash_prints = []
-
-        self.width = 36
-        self.height = 44
-        self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "Slash.png")), (self.width, self.height))
-        self.rect = self.img.get_rect(center=(player.x, player.y))
-
         self.x = player.x
         self.y = player.y
-        self.angle = player.angle + 60
-
-        print(self.angle)
-
-        self.distance = 180
-
-        self.x += self.distance * math.sin(
-            math.radians(abs(self.angle - 450) - 90))
-        self.y -= self.distance * math.cos(
-            math.radians(abs(self.angle - 450) - 90))
-
-        self.rect.center = (int(self.x), int(self.y))
-
-        self.angle = -330
-
+        self.width = 36
+        self.height = 44
         self.vel = 5 / main.FPS
         self.arc = 120
         self.cast_time = 30 * main.FPS
         self.turn_per_frame = self.arc / self.cast_time
         self.display_angle = 0
         self.turn = 12
-        self.initial_offset = main.math.radians(60)
+        self.initial_offset = math.radians(60)
         self.radius = 180
         self.angle = -player.angle + self.initial_offset
-        self.length = main.math.pi * 40
+        self.length = math.pi * 40
+        self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "Slash.png")), (self.width, self.height))
         self.rotated_img = self.img
+        self.rect = self.img.get_rect(center=(player.x, player.y))
         #   self.y += 40
 
 
