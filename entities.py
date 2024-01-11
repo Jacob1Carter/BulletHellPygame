@@ -273,8 +273,8 @@ class Glaive:
             self.rect = rect
             self.angle = angle
 
-    #   glaive animation cuts, printing 10 copies of glaive.png each turned 12 degrees form the previous,
-    #   giving a total arc of 120 degrees
+    #   glaives will spin around the player, dealing damage to enemies that come in contact with them,
+    #   and healing the player for the same amount.
     def __init__(self, player):
         self.glaive_prints = []
         self.x = player.x
@@ -294,6 +294,7 @@ class Glaive:
         self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "slash.png")), (self.width, self.height))
         self.rotated_img = self.img
         self.rect = self.img.get_rect(center=(player.x, player.y))
+        self.damage = 50
         #   self.y += 40
 
 

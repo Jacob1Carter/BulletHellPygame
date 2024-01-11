@@ -51,8 +51,7 @@ def handle_enemies(enemies, player, bullets, health_packs):
 
         #   Face player
 
-        enemies[enemy].angle = (360 - math.atan2(player.y - enemies[enemy].y,
-                                                 player.x - enemies[enemy].x) * 180 / math.pi) - 90
+        enemies[enemy].angle = (360 - math.atan2(player.y - enemies[enemy].y, player.x - enemies[enemy].x) * 180 / math.pi) - 90
         rot_image = pygame.transform.rotate(enemies[enemy].img, enemies[enemy].angle)
         enemies[enemy].rect = rot_image.get_rect(center=(enemies[enemy].x, enemies[enemy].y))
 
@@ -254,7 +253,7 @@ def handle_bullets(bullets, player, enemies):
             bullets.remove(bullet)
 
 
-def handle_glaives(glaives, player):
+def handle_glaives(glaives, player, enemies):
     for glaive in glaives:
         glaive.angle += glaive.vel
         glaive.x = player.x + glaive.radius * math.cos(glaive.angle)
@@ -263,6 +262,14 @@ def handle_glaives(glaives, player):
         rotation_angle = -math.degrees(glaive.angle) + 180
         glaive.rotated_img = pygame.transform.rotate(glaive.img, rotation_angle)
         glaive.rect = glaive.rotated_img.get_rect(center=(glaive.x, glaive.y))
+
+        for enemy in enemies:
+            distance = math.sqrt((glaive.x - enemies[enemy].x) ** 2 + (glaive.y - enemies[enemy].y) ** 2)
+            if distance <= enemies[enemy].width:
+                enemies[enemy].take_damage(glaive.damage)
+                glaives.remove(glaive)
+                player.heal(glaive.damage)
+                break
 
 
 def handle_rockets(rockets, player, enemies, bullets):
@@ -775,7 +782,7 @@ def main():
             handle_enemies(enemies, player, bullets, health_packs)
             pause = handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, glaives)
             handle_bullets(bullets, player, enemies)
-            handle_glaives(glaives, player)
+            handle_glaives(glaives, player, enemies)
             handle_rockets(rockets, player, enemies, bullets)
             display(player, enemies, icos, bullets, r_icos, glaive_icos, rockets, glaives, attribute_bar_ico,
                     progress_bar_ico, health_packs, reticule, phase, runtime, ui)
