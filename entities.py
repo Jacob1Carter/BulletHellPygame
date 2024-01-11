@@ -175,8 +175,8 @@ class Player:
         self.x = (main.WIDTH // 2)
         self.vel = 350 / main.FPS
         self.img = main.pygame.transform.scale(
-            main.pygame.image.load(main.os.path.join("Assets", "ArrowHead1.png")),
-            # "Rizzvan.png""ArrowHead1.png""Brookiolyn.png"
+            main.pygame.image.load(main.os.path.join("Assets", "fimsh-threat.png")),
+            # "fimsh-threat.png""Rizzvan.png""ArrowHead1.png""Brookiolyn.png"
             (self.width, self.height))
         self.angle = 0
         self.rect = main.pygame.Rect(self.x, self.y, self.width, self.height)    #(200, 200)
