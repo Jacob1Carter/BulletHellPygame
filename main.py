@@ -194,9 +194,16 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
             pack.timeout += 1
         if pack.x <= player.x <= pack.x + pack.width or pack.x <= player.x + player.width <= pack.x + pack.width and \
                 pack.y <= player.y <= pack.y + pack.height or pack.y <= player.y + player.width <= pack.y + pack.width:
-            if player.health < player.max_health:
-                player.heal(pack.health)
-                health_packs.remove(pack)
+            player.collected_health_packs.append(pack)
+            health_packs.remove(pack)
+
+    if player.health < player.max_health:
+        if keys_pressed[pygame.K_r]:
+            if len(player.collected_health_packs) < 1:
+                pass
+            else:
+                player.heal(player.collected_health_packs[0].health)
+                player.collected_health_packs.pop(0)
 
     #   check health
 
@@ -447,6 +454,9 @@ def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, p
     WIN.blit(phase_text, (((WIDTH / 2) - (phase_text.get_width() / 2)), (0 + phase_text.get_height())))
     kill_text = FONT3.render("KILLS: {}".format(player.kills), True, COLOURS["white"])
     WIN.blit(kill_text, (((WIDTH / 2) - (kill_text.get_width() / 2)), (20 + kill_text.get_height())))
+
+    healthpack_text = FONT3.render("Health Packs: {}".format(len(player.collected_health_packs)), True, COLOURS["white"])
+    WIN.blit(healthpack_text, (WIDTH - healthpack_text.get_width() - 10, 0 + 10))
 
     pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(15, HEIGHT - 8, (player.health / player.max_health) * 200, 1))
     if (player.health / player.max_health) * 200 > 193:
