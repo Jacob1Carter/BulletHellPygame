@@ -185,23 +185,18 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
 
     #   warp
 
-    if keys_pressed[pygame.K_f]:
+    if player.warp_active_cooldown < player.warp_cooldown:
+        player.warp_active_cooldown += 1
+    elif keys_pressed[pygame.K_f]:
         if len(player.warps) == 0:
-            if player.warp_cooldown == 0:
-                player.warps.append(player.place_warp())
+            player.warps.append(player.place_warp())
         else:
             if player.warps[0].cast_time <= 0:
-                print("FLAG")
                 player.activate_warp(player.warps[0])
-
-    if player.warp_cooldown > 0:
-        player.warp_cooldown -= 1
 
     for warp in player.warps:
         if warp.cast_time > 0:
             warp.cast_time -= 1
-
-        print(warp.cast_time)
 
     #   check health pack
 
@@ -370,7 +365,7 @@ def handle_rockets(rockets, player, enemies, bullets):
                 rocket.explode_time -= 1
 
 
-def display(player, enemies, dashes, bullets, r_icos, glaive_icos, rockets, glaives, attribute_bar_ico, progress_bar_ico,
+def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, rockets, glaives, attribute_bar_ico, progress_bar_ico,
             health_packs, reticule, phase, runtime, ui):
     WIN.fill(COLOURS["black"])
     for pack in health_packs:
@@ -418,13 +413,13 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, rockets, glai
     #   Show UI
 
     if ui:
-        display_ui(player, enemies, dashes, r_icos, glaive_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
+        display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
                    runtime)
 
     pygame.display.update()
 
 
-def display_ui(player, enemies, dashes, r_icos, glaive_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
+def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
                runtime):
     for enemy in enemies:
         pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(
@@ -447,6 +442,7 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, attribute_bar_ico, 
     WIN.blit(dashes[0], (10, 10))
     WIN.blit(r_icos[0], (10, 50))
     WIN.blit(glaive_icos[0], (10, 90))
+    WIN.blit(warp_icos[0], (10, 130))
 
     if player.ico_i < 0:
         player.ico_i = 30
@@ -472,9 +468,21 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, attribute_bar_ico, 
         player.glaive_ico_i += 1
         player.glaive_cooldown_f += player.glaive_cooldown / 30
 
+    if player.warp_ico_i < 0:
+        player.warp_ico_i = 30
+    if player.warp_cooldown_f < 0:
+        player.warp_cooldown_f = player.warp_cooldown
+    if player.warp_active_cooldown > player.warp_cooldown_f.__round__(3):
+        player.warp_ico_i += 1
+        player.warp_cooldown_f += player.warp_cooldown / 30
+    if player.warp_ico_i > 30:
+        player.warp_ico_i = 30
+
     WIN.blit(dashes[player.ico_i], (10, 10))
     WIN.blit(r_icos[player.r_ico_i], (10, 50))
     WIN.blit(glaive_icos[player.glaive_ico_i], (10, 90))
+    print(player.warp_ico_i)
+    WIN.blit(warp_icos[player.warp_ico_i], (10, 130))
 
     phase_text = FONT3.render("PHASE: {}".format(phase), True, COLOURS["white"])
     WIN.blit(phase_text, (((WIDTH / 2) - (phase_text.get_width() / 2)), (0 + phase_text.get_height())))
@@ -715,16 +723,26 @@ def main():
     icos = []
     r_icos = []
     glaive_icos = []
+    warp_icos = []
     for i in range(0, 31):
         icos.append(
             pygame.image.load(
-                os.path.join("Assets", "Dash_ico", "Dash{}.png".format(i))))
+                os.path.join("Assets", "Dash_ico", "Dash{}.png".format(i))
+            )
+        )
         r_icos.append(
             pygame.image.load(
-                os.path.join("Assets", "Rocket_ico", "Rocket{}.png".format(i))))
+                os.path.join("Assets", "Rocket_ico", "Rocket{}.png".format(i))
+            )
+        )
         glaive_icos.append(
             pygame.image.load(
-                os.path.join("Assets", "Rocket_ico", "Rocket{}.png".format(i))
+                os.path.join("Assets", "Glaive_ico", "Glaive{}.png".format(i))
+            )
+        )
+        warp_icos.append(
+            pygame.image.load(
+                os.path.join("Assets", "Warp_ico", "Warp{}.png".format(i))
             )
         )
 
@@ -815,7 +833,7 @@ def main():
             handle_bullets(bullets, player, enemies)
             handle_glaives(glaives, player, enemies)
             handle_rockets(rockets, player, enemies, bullets)
-            display(player, enemies, icos, bullets, r_icos, glaive_icos, rockets, glaives, attribute_bar_ico,
+            display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, rockets, glaives, attribute_bar_ico,
                     progress_bar_ico, health_packs, reticule, phase, runtime, ui)
 
             if enemy_spawn_cooldown:
