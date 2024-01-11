@@ -183,6 +183,26 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
         player.glaive_cooldown_f = 0
         player.glaive_ico_i = 0
 
+    #   warp
+
+    if keys_pressed[pygame.K_f]:
+        if len(player.warps) == 0:
+            if player.warp_cooldown == 0:
+                player.warps.append(player.place_warp())
+        else:
+            if player.warps[0].cast_time <= 0:
+                print("FLAG")
+                player.activate_warp(player.warps[0])
+
+    if player.warp_cooldown > 0:
+        player.warp_cooldown -= 1
+
+    for warp in player.warps:
+        if warp.cast_time > 0:
+            warp.cast_time -= 1
+
+        print(warp.cast_time)
+
     #   check health pack
 
     for pack in health_packs:
@@ -255,13 +275,20 @@ def handle_bullets(bullets, player, enemies):
 
 def handle_glaives(glaives, player, enemies):
     for glaive in glaives:
+        #   Move
+
         glaive.angle += glaive.vel
         glaive.x = player.x + glaive.radius * math.cos(glaive.angle)
         glaive.y = player.y + glaive.radius * math.sin(glaive.angle)
 
-        rotation_angle = -math.degrees(glaive.angle) + 180
-        glaive.rotated_img = pygame.transform.rotate(glaive.img, rotation_angle)
+        glaive.rotated_img = pygame.transform.rotate(glaive.img, glaive.display_angle)
         glaive.rect = glaive.rotated_img.get_rect(center=(glaive.x, glaive.y))
+
+        #   Rotate
+
+        glaive.display_angle -= glaive.rotate_speed
+
+        #   Check for hit
 
         for enemy in enemies:
             distance = math.sqrt((glaive.x - enemies[enemy].x) ** 2 + (glaive.y - enemies[enemy].y) ** 2)
@@ -344,11 +371,15 @@ def handle_rockets(rockets, player, enemies, bullets):
 
 
 def display(player, enemies, dashes, bullets, r_icos, glaive_icos, rockets, glaives, attribute_bar_ico, progress_bar_ico,
-            health_packs,
-            reticule, phase, runtime, ui):
+            health_packs, reticule, phase, runtime, ui):
     WIN.fill(COLOURS["black"])
     for pack in health_packs:
         WIN.blit(pack.img, pack.rect)
+
+    #   Show warp point
+
+    for warp in player.warps:
+        WIN.blit(warp.img, warp.rect)
 
     #   Show bullets
 

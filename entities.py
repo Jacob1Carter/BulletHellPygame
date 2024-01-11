@@ -210,6 +210,9 @@ class Player:
         self.cooldown_rate = 30 / main.FPS
         self.kills = 0
         self.collected_health_packs = []
+        self.warps = []
+        self.warp_max_cooldown = 5 * main.FPS
+        self.warp_cooldown = 0
 
     def dash(self, x, y):  # dash in the direction of the mouse
         a = abs(self.x - x)
@@ -266,6 +269,29 @@ class Player:
     def glaive(self):
         return Glaive(self)
 
+    def place_warp(self):
+        return Warp(self)
+
+    def activate_warp(self, warp):
+        self.x = warp.x - (warp.width // 2)
+        self.y = warp.y - (warp.height // 2)
+        warp.detonate(self)
+
+
+class Warp:
+    def __init__(self, player):
+        self.x = player.x - (player.width // 2)
+        self.y = player.y - (player.height // 2)
+        self.cast_time = 1 * main.FPS
+        self.width = 80
+        self.height = 80
+        self.rect = main.pygame.Rect(self.x, self.y, self.width, self.height)
+        self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "warp-point.png")), (self.width, self.height))
+
+    def detonate(self, player):
+        player.warps = []
+        player.warp_cooldown = player.warp_max_cooldown
+
 
 class Glaive:
     class GlaivePrint:
@@ -295,6 +321,8 @@ class Glaive:
         self.rotated_img = self.img
         self.rect = self.img.get_rect(center=(player.x, player.y))
         self.damage = 50
+        self.rotate_speed = 23546756 / main.FPS
+        self.display_angle = self.angle
         #   self.y += 40
 
 
