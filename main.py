@@ -22,8 +22,6 @@ FONT3 = pygame.font.SysFont("Arial", 20)
 
 primary_monitor = get_monitors()[0]
 
-print(primary_monitor)
-
 WIDTH = primary_monitor.width  # 2560    #   primary_monitor.width
 HEIGHT = primary_monitor.height  # 1440    #    primary_monitor.height
 
@@ -35,6 +33,7 @@ COLOURS = {
     "dark_grey": (50, 50, 50),
     "light_grey": (180, 180, 180),
     "red": (255, 0, 0),
+    "pink": (255, 120, 165),
     "green": (0, 255, 0),
     "blue": (0, 0, 255),
     "yellow": (255, 255, 0),
@@ -52,8 +51,7 @@ def handle_enemies(enemies, player, bullets, health_packs):
 
         #   Face player
 
-        enemies[enemy].angle = (360 - math.atan2(player.y - enemies[enemy].y,
-                                                 player.x - enemies[enemy].x) * 180 / math.pi) - 90
+        enemies[enemy].angle = (360 - math.atan2(player.y - enemies[enemy].y, player.x - enemies[enemy].x) * 180 / math.pi) - 90
         rot_image = pygame.transform.rotate(enemies[enemy].img, enemies[enemy].angle)
         enemies[enemy].rect = rot_image.get_rect(center=(enemies[enemy].x, enemies[enemy].y))
 
@@ -251,7 +249,7 @@ def handle_bullets(bullets, player, enemies):
 def handle_slashes(slashes, player):
     #   rotate and move
     for slash in slashes:
-        print(player.angle)
+        print(slash.angle)
 
         pass
 
@@ -261,11 +259,12 @@ def handle_slashes(slashes, player):
         slash.x = player.x + slash.radius * math.cos(slash.angle)
         slash.y = player.y + slash.radius * math.sin(slash.angle)
 
+        """
+
         rotation_angle = -math.degrees(slash.angle) + 180
         slash.rotated_img = pygame.transform.rotate(slash.img, rotation_angle)
         slash.rect = slash.rotated_img.get_rect(center=(slash.x, slash.y))
 
-        """
 
 
 def handle_rockets(rockets, player, enemies, bullets):
@@ -359,6 +358,7 @@ def display(player, enemies, dashes, bullets, r_icos, slash_icos, rockets, slash
     #   Show player
 
     WIN.blit(pygame.transform.rotate(player.img, player.angle), player.rect)
+    pygame.draw.circle(WIN, COLOURS["pink"], (player.x, player.y), 3)
 
     #   Show enemies
 
@@ -391,8 +391,7 @@ def display(player, enemies, dashes, bullets, r_icos, slash_icos, rockets, slash
     pygame.display.update()
 
 
-def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
-               runtime):
+def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, progress_bar_ico, reticule, phase, runtime):
     for enemy in enemies:
         pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(
             (enemies[enemy].x - (enemies[enemy].width / 2)),
