@@ -209,6 +209,7 @@ class Player:
         self.overheat_cool = 2.4 * main.FPS
         self.cooldown_rate = 30 / main.FPS
         self.kills = 0
+        self.collected_health_packs = []
 
     def dash(self, x, y):  # dash in the direction of the mouse
         a = abs(self.x - x)
