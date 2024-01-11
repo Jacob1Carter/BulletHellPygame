@@ -3,10 +3,10 @@
 import main
 import math
 
+
 #   Rocket class, used as an object that comes from the player and follows the mouse into enemies, which it then
 #   damages. All rockets are managed by handle_rockets function.
 class Rocket:
-
     def __init__(self, x, y, ang):
         self.x, self.y = x, y
         self.width = 50
@@ -277,11 +277,19 @@ class Slash:
     #   giving a total arc of 120 degrees
     def __init__(self, player):
         self.slash_prints = []
+
+        self.width = 36
+        self.height = 44
+        self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "Slash.png")), (self.width, self.height))
+        self.rect = self.img.get_rect(center=(player.x, player.y))
+
         self.x = player.x
         self.y = player.y
         self.angle = player.angle + 60
 
-        self.distance = 50
+        print(self.angle)
+
+        self.distance = 180
 
         self.x += self.distance * math.sin(
             math.radians(abs(self.angle - 450) - 90))
@@ -290,8 +298,6 @@ class Slash:
 
         self.rect.center = (int(self.x), int(self.y))
 
-        self.width = 36
-        self.height = 44
         self.vel = 5 / main.FPS
         self.arc = 120
         self.cast_time = 30 * main.FPS
@@ -302,9 +308,8 @@ class Slash:
         self.radius = 180
         self.angle = -player.angle + self.initial_offset
         self.length = main.math.pi * 40
-        self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "Slash.png")), (self.width, self.height))
         self.rotated_img = self.img
-        self.rect = self.img.get_rect(center=(player.x, player.y))
         #   self.y += 40
+
 
 #   \entities.py
