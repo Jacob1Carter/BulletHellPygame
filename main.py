@@ -22,8 +22,10 @@ FONT3 = pygame.font.SysFont("Arial", 20)
 
 primary_monitor = get_monitors()[0]
 
-WIDTH = 2560    # primary_monitor.width
-HEIGHT = 1440   # primary_monitor.height
+print(primary_monitor)
+
+WIDTH = primary_monitor.width  # 2560    #   primary_monitor.width
+HEIGHT = primary_monitor.height  # 1440    #    primary_monitor.height
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 
@@ -50,7 +52,8 @@ def handle_enemies(enemies, player, bullets, health_packs):
 
         #   Face player
 
-        enemies[enemy].angle = (360 - math.atan2(player.y - enemies[enemy].y, player.x - enemies[enemy].x) * 180 / math.pi) - 90
+        enemies[enemy].angle = (360 - math.atan2(player.y - enemies[enemy].y,
+                                                 player.x - enemies[enemy].x) * 180 / math.pi) - 90
         rot_image = pygame.transform.rotate(enemies[enemy].img, enemies[enemy].angle)
         enemies[enemy].rect = rot_image.get_rect(center=(enemies[enemy].x, enemies[enemy].y))
 
@@ -246,7 +249,6 @@ def handle_bullets(bullets, player, enemies):
 
 
 def handle_slashes(slashes, player):
-
     #   rotate and move
     for slash in slashes:
         print(player.angle)
@@ -383,12 +385,14 @@ def display(player, enemies, dashes, bullets, r_icos, slash_icos, rockets, slash
     #   Show UI
 
     if ui:
-        display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, progress_bar_ico, reticule, phase, runtime)
+        display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
+                   runtime)
 
     pygame.display.update()
 
 
-def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, progress_bar_ico, reticule, phase, runtime):
+def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
+               runtime):
     for enemy in enemies:
         pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(
             (enemies[enemy].x - (enemies[enemy].width / 2)),
@@ -457,11 +461,14 @@ def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, p
     elif player.max_overheat * 0.8 <= player.overheat < player.max_overheat:
         bar_colour = COLOURS["yellow"]
 
-    pygame.draw.rect(WIN, bar_colour, pygame.Rect(WIDTH - 210 - 20 + 15, HEIGHT - 8, (player.overheat / player.max_overheat) * 200, 1))
+    pygame.draw.rect(WIN, bar_colour,
+                     pygame.Rect(WIDTH - 210 - 20 + 15, HEIGHT - 8, (player.overheat / player.max_overheat) * 200, 1))
     if (player.overheat / player.max_overheat) * 200 > 193:
         pygame.draw.rect(WIN, bar_colour, pygame.Rect(WIDTH - 210 - 20 + 22, HEIGHT - 9, 193, 3))
     elif (player.overheat / player.max_overheat) * 200 > 7:
-        pygame.draw.rect(WIN, bar_colour, pygame.Rect(WIDTH - 210 - 20 + 22, HEIGHT - 9, (player.overheat / player.max_overheat) * 200, 3))
+        pygame.draw.rect(WIN, bar_colour,
+                         pygame.Rect(WIDTH - 210 - 20 + 22, HEIGHT - 9, (player.overheat / player.max_overheat) * 200,
+                                     3))
     WIN.blit(attribute_bar_ico, (WIDTH - 210 - 10, HEIGHT - 10))
 
     #   Phase bar
@@ -484,7 +491,8 @@ def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, p
         if (runtime / 150) * 408 >= 400:
             pygame.draw.rect(WIN, phase_colour, pygame.Rect((WIDTH / 2 - (420 / 2)) + 15, 12, 392, 5))
         else:
-            pygame.draw.rect(WIN, phase_colour, pygame.Rect((WIDTH / 2 - (420 / 2)) + 15, 12, ((runtime / 150) * 408) - 7, 5))
+            pygame.draw.rect(WIN, phase_colour,
+                             pygame.Rect((WIDTH / 2 - (420 / 2)) + 15, 12, ((runtime / 150) * 408) - 7, 5))
 
     WIN.blit(progress_bar_ico, (WIDTH / 2 - (420 / 2), 10))
 
@@ -511,7 +519,8 @@ def pause_display(play_button, restart_button, settings_button, exit_button):
 
     pygame.draw.rect(WIN, play_button.colour, play_button.rect)
     play_text = FONT2.render(play_button.text, True, play_button.text_colour)
-    WIN.blit(play_text, (play_button.x + ((play_button.width - play_text.get_width()) / 2), (play_button.y + ((play_button.height - play_text.get_height()) / 2))))
+    WIN.blit(play_text, (play_button.x + ((play_button.width - play_text.get_width()) / 2),
+                         (play_button.y + ((play_button.height - play_text.get_height()) / 2))))
 
     pygame.draw.rect(WIN, restart_button.colour, restart_button.rect)
     restart_text = FONT2.render(restart_button.text, True, restart_button.text_colour)
@@ -520,11 +529,13 @@ def pause_display(play_button, restart_button, settings_button, exit_button):
 
     pygame.draw.rect(WIN, settings_button.colour, settings_button.rect)
     settings_text = FONT2.render(settings_button.text, True, settings_button.text_colour)
-    WIN.blit(settings_text, (settings_button.x + ((settings_button.width - settings_text.get_width()) / 2), (settings_button.y + ((settings_button.height - settings_text.get_height()) / 2))))
+    WIN.blit(settings_text, (settings_button.x + ((settings_button.width - settings_text.get_width()) / 2),
+                             (settings_button.y + ((settings_button.height - settings_text.get_height()) / 2))))
 
     pygame.draw.rect(WIN, exit_button.colour, exit_button.rect)
     exit_text = FONT2.render(exit_button.text, True, exit_button.text_colour)
-    WIN.blit(exit_text, (exit_button.x + ((exit_button.width - exit_text.get_width()) / 2), (exit_button.y + ((exit_button.height - exit_text.get_height()) / 2))))
+    WIN.blit(exit_text, (exit_button.x + ((exit_button.width - exit_text.get_width()) / 2),
+                         (exit_button.y + ((exit_button.height - exit_text.get_height()) / 2))))
 
     pygame.display.update()
 
@@ -534,11 +545,13 @@ def settings_display(reticule_button, back_button):
 
     pygame.draw.rect(WIN, reticule_button.colour, reticule_button.rect)
     reticule_text = FONT2.render(reticule_button.text, True, reticule_button.text_colour)
-    WIN.blit(reticule_text, (reticule_button.x + ((reticule_button.width - reticule_text.get_width()) / 2), (reticule_button.y + ((reticule_button.height - reticule_text.get_height()) / 2))))
+    WIN.blit(reticule_text, (reticule_button.x + ((reticule_button.width - reticule_text.get_width()) / 2),
+                             (reticule_button.y + ((reticule_button.height - reticule_text.get_height()) / 2))))
 
     pygame.draw.rect(WIN, back_button.colour, back_button.rect)
     back_text = FONT2.render(back_button.text, True, back_button.text_colour)
-    WIN.blit(back_text, (back_button.x + ((back_button.width - back_text.get_width()) / 2), (back_button.y + ((back_button.height - back_text.get_height()) / 2))))
+    WIN.blit(back_text, (back_button.x + ((back_button.width - back_text.get_width()) / 2),
+                         (back_button.y + ((back_button.height - back_text.get_height()) / 2))))
 
 
 def reticule_display(width_button, height_button, dot_button, gap_button, thickness_button, back_button):
@@ -623,25 +636,37 @@ def main():
     health_packs = []
     slashes = []
 
-    play_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "PLAY", COLOURS["white"])
-    restart_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60, COLOURS["dark_grey"], "RESTART", COLOURS["white"])
-    settings_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60, COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
-    exit_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"], "EXIT", COLOURS["white"])
+    play_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60,
+                                    COLOURS["green"], "PLAY", COLOURS["white"])
+    restart_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60,
+                                       COLOURS["dark_grey"], "RESTART", COLOURS["white"])
+    settings_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60,
+                                        COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
+    exit_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60,
+                                    COLOURS["red"], "EXIT", COLOURS["white"])
 
-    reticule_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "EDIT RETICULE", COLOURS["white"])
-    back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60, COLOURS["light_grey"], "BACK", COLOURS["white"])
+    reticule_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60,
+                                        COLOURS["green"], "EDIT RETICULE", COLOURS["white"])
+    back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60,
+                                    COLOURS["light_grey"], "BACK", COLOURS["white"])
 
-    width_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 140, WIDTH // 4, 60, COLOURS["green"], "PLAY", COLOURS["white"])
+    width_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 140, WIDTH // 4, 60,
+                                        COLOURS["green"], "PLAY", COLOURS["white"])
 
-    height_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "PLAY", COLOURS["white"])
+    height_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60,
+                                         COLOURS["green"], "PLAY", COLOURS["white"])
 
-    dot_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60, COLOURS["dark_grey"], "RESTART", COLOURS["white"])
+    dot_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60,
+                                      COLOURS["dark_grey"], "RESTART", COLOURS["white"])
 
-    gap_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60, COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
+    gap_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60,
+                                      COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
 
-    thickness_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"], "EXIT", COLOURS["white"])
+    thickness_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60,
+                                            COLOURS["red"], "EXIT", COLOURS["white"])
 
-    reticule_back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 235, WIDTH // 4, 60, COLOURS["light_grey"], "BACK", COLOURS["white"])
+    reticule_back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 235, WIDTH // 4, 60,
+                                             COLOURS["light_grey"], "BACK", COLOURS["white"])
 
     reticule = ui_objects.Reticule()
 
@@ -717,7 +742,8 @@ def main():
                 if reticule_bool:
                     handle_cool_i(width_button, height_button, dot_button, gap_button, thickness_button)
                     handle_cool(reticule_back_button)
-                    reticule_display(width_button, height_button, dot_button, gap_button, thickness_button, reticule_back_button)
+                    reticule_display(width_button, height_button, dot_button, gap_button, thickness_button,
+                                     reticule_back_button)
                 else:
                     handle_cool(reticule_button, back_button)
                     settings_display(reticule_button, back_button)
@@ -735,12 +761,14 @@ def main():
                     if random.random() > 0.1:
                         enemies.update({
                             num:
-                                entities.Enemy(random.randint(30, WIDTH - 30), random.randint(30, HEIGHT - 30), 15, 0, 300, 1)
+                                entities.Enemy(random.randint(30, WIDTH - 30), random.randint(30, HEIGHT - 30), 15, 0,
+                                               300, 1)
                         })
                     else:
                         enemies.update({
                             num:
-                                entities.Enemy(random.randint(30, WIDTH - 30), random.randint(30, HEIGHT - 30), 30, 30, 400, 1.2)
+                                entities.Enemy(random.randint(30, WIDTH - 30), random.randint(30, HEIGHT - 30), 30, 30,
+                                               400, 1.2)
                         })
                     num += 1
                     enemy_spawn_cooldown = True
