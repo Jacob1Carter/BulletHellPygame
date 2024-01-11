@@ -189,10 +189,10 @@ class Player:
         self.r_cooldown = 10 * main.FPS
         self.r_cooldown_f = -1
         self.r_active_cooldown = self.r_cooldown
-        self.slash_ico_i = -1
-        self.slash_cooldown = 5 * main.FPS
-        self.slash_cooldown_f = -1
-        self.slash_active_cooldown = self.slash_cooldown
+        self.glaive_ico_i = -1
+        self.glaive_cooldown = 5 * main.FPS
+        self.glaive_cooldown_f = -1
+        self.glaive_active_cooldown = self.glaive_cooldown
         self.bullet_img = main.pygame.transform.scale(
             main.pygame.image.load(
                 main.os.path.join("Assets", "Bullets", "Bullet_green.png")),
@@ -263,20 +263,20 @@ class Player:
         if self.health > self.max_health:
             self.health = self.max_health
 
-    def slash(self):
-        return Slash(self)
+    def glaive(self):
+        return Glaive(self)
 
 
-class Slash:
-    class SlashPrint:
+class Glaive:
+    class GlaivePrint:
         def __init__(self, rect, angle):
             self.rect = rect
             self.angle = angle
 
-    #   slash animation cuts, printing 10 copies of Slash.png each turned 12 degrees form the previous,
+    #   glaive animation cuts, printing 10 copies of glaive.png each turned 12 degrees form the previous,
     #   giving a total arc of 120 degrees
     def __init__(self, player):
-        self.slash_prints = []
+        self.glaive_prints = []
         self.x = player.x
         self.y = player.y
         self.width = 36
@@ -291,7 +291,7 @@ class Slash:
         self.radius = 180
         self.angle = -player.angle + self.initial_offset
         self.length = math.pi * 40
-        self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "Slash.png")), (self.width, self.height))
+        self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "slash.png")), (self.width, self.height))
         self.rotated_img = self.img
         self.rect = self.img.get_rect(center=(player.x, player.y))
         #   self.y += 40

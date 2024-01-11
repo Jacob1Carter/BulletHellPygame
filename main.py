@@ -122,7 +122,7 @@ def handle_enemies(enemies, player, bullets, health_packs):
 #   Called once per frame, this function is primarily used to handle all inputs from the user. This function uses the
 #   xy coordinates of the mouse, faces the player towards it, reads key inputs to move, and mouse button to shoot,
 #   dash and launch rockets. The function then checks if the player's health is 0, and ends the game if this is the case
-def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, slashes):
+def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, glaives):
     x, y = pygame.mouse.get_pos()
 
     #   move
@@ -174,15 +174,15 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
         player.r_cooldown_f = 0
         player.r_ico_i = 0
 
-    #   slash
+    #   glaive
 
-    if player.slash_active_cooldown < player.slash_cooldown:
-        player.slash_active_cooldown += 1
+    if player.glaive_active_cooldown < player.glaive_cooldown:
+        player.glaive_active_cooldown += 1
     elif keys_pressed[pygame.K_q]:
-        slashes.append(player.slash())
-        player.slash_active_cooldown = 0
-        player.slash_cooldown_f = 0
-        player.slash_ico_i = 0
+        glaives.append(player.glaive())
+        player.glaive_active_cooldown = 0
+        player.glaive_cooldown_f = 0
+        player.glaive_ico_i = 0
 
     #   check health pack
 
@@ -254,15 +254,15 @@ def handle_bullets(bullets, player, enemies):
             bullets.remove(bullet)
 
 
-def handle_slashes(slashes, player):
-    for slash in slashes:
-        slash.angle += slash.vel
-        slash.x = player.x + slash.radius * math.cos(slash.angle)
-        slash.y = player.y + slash.radius * math.sin(slash.angle)
+def handle_glaives(glaives, player):
+    for glaive in glaives:
+        glaive.angle += glaive.vel
+        glaive.x = player.x + glaive.radius * math.cos(glaive.angle)
+        glaive.y = player.y + glaive.radius * math.sin(glaive.angle)
 
-        rotation_angle = -math.degrees(slash.angle) + 180
-        slash.rotated_img = pygame.transform.rotate(slash.img, rotation_angle)
-        slash.rect = slash.rotated_img.get_rect(center=(slash.x, slash.y))
+        rotation_angle = -math.degrees(glaive.angle) + 180
+        glaive.rotated_img = pygame.transform.rotate(glaive.img, rotation_angle)
+        glaive.rect = glaive.rotated_img.get_rect(center=(glaive.x, glaive.y))
 
 
 def handle_rockets(rockets, player, enemies, bullets):
@@ -336,7 +336,7 @@ def handle_rockets(rockets, player, enemies, bullets):
                 rocket.explode_time -= 1
 
 
-def display(player, enemies, dashes, bullets, r_icos, slash_icos, rockets, slashes, attribute_bar_ico, progress_bar_ico,
+def display(player, enemies, dashes, bullets, r_icos, glaive_icos, rockets, glaives, attribute_bar_ico, progress_bar_ico,
             health_packs,
             reticule, phase, runtime, ui):
     WIN.fill(COLOURS["black"])
@@ -361,13 +361,13 @@ def display(player, enemies, dashes, bullets, r_icos, slash_icos, rockets, slash
         WIN.blit(
             pygame.transform.rotate(enemies[enemy].img, enemies[enemy].angle), enemies[enemy].rect)
 
-    #   Show slashes
+    #   Show glaives
 
-    for slash in slashes:
-        for slash_print in slash.slash_prints:
-            WIN.blit(pygame.transform.rotate(slash.img, slash_print.angle), slash_print.rect)
-        WIN.blit(slash.rotated_img, pygame.Rect(
-            slash.x - (slash.width / 2), slash.y - (slash.height / 2), slash.width, slash.height))
+    for glaive in glaives:
+        for glaive_print in glaive.glaive_prints:
+            WIN.blit(pygame.transform.rotate(glaive.img, glaive_print.angle), glaive_print.rect)
+        WIN.blit(glaive.rotated_img, pygame.Rect(
+            glaive.x - (glaive.width / 2), glaive.y - (glaive.height / 2), glaive.width, glaive.height))
 
     #   Show rockets
 
@@ -380,13 +380,13 @@ def display(player, enemies, dashes, bullets, r_icos, slash_icos, rockets, slash
     #   Show UI
 
     if ui:
-        display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
+        display_ui(player, enemies, dashes, r_icos, glaive_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
                    runtime)
 
     pygame.display.update()
 
 
-def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
+def display_ui(player, enemies, dashes, r_icos, glaive_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
                runtime):
     for enemy in enemies:
         pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(
@@ -408,7 +408,7 @@ def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, p
 
     WIN.blit(dashes[0], (10, 10))
     WIN.blit(r_icos[0], (10, 50))
-    WIN.blit(slash_icos[0], (10, 90))
+    WIN.blit(glaive_icos[0], (10, 90))
 
     if player.ico_i < 0:
         player.ico_i = 30
@@ -426,17 +426,17 @@ def display_ui(player, enemies, dashes, r_icos, slash_icos, attribute_bar_ico, p
         player.r_ico_i += 1
         player.r_cooldown_f += player.r_cooldown / 30
 
-    if player.slash_ico_i < 0:
-        player.slash_ico_i = 30
-    if player.slash_cooldown_f < 0:
-        player.slash_cooldown_f = player.slash_cooldown
-    if player.slash_active_cooldown > player.slash_cooldown_f.__round__(3):
-        player.slash_ico_i += 1
-        player.slash_cooldown_f += player.slash_cooldown / 30
+    if player.glaive_ico_i < 0:
+        player.glaive_ico_i = 30
+    if player.glaive_cooldown_f < 0:
+        player.glaive_cooldown_f = player.glaive_cooldown
+    if player.glaive_active_cooldown > player.glaive_cooldown_f.__round__(3):
+        player.glaive_ico_i += 1
+        player.glaive_cooldown_f += player.glaive_cooldown / 30
 
     WIN.blit(dashes[player.ico_i], (10, 10))
     WIN.blit(r_icos[player.r_ico_i], (10, 50))
-    WIN.blit(slash_icos[player.slash_ico_i], (10, 90))
+    WIN.blit(glaive_icos[player.glaive_ico_i], (10, 90))
 
     phase_text = FONT3.render("PHASE: {}".format(phase), True, COLOURS["white"])
     WIN.blit(phase_text, (((WIDTH / 2) - (phase_text.get_width() / 2)), (0 + phase_text.get_height())))
@@ -602,7 +602,7 @@ def end_game(end_message):
 
 
 def reset():
-    # returns: pause, player, enemies, enemy_spawn_cooldown, esc_time, num, [bullets, rockets, health_packs, slashes],
+    # returns: pause, player, enemies, enemy_spawn_cooldown, esc_time, num, [bullets, rockets, health_packs, glaives],
     # [runtime, ticks, phase]
 
     return False, entities.Player(), {}, False, 0, 1, [[], [], [], []], [0, 0, 1]
@@ -633,7 +633,7 @@ def main():
     bullets = []
     rockets = []
     health_packs = []
-    slashes = []
+    glaives = []
 
     play_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60,
                                     COLOURS["green"], "PLAY", COLOURS["white"])
@@ -676,7 +676,7 @@ def main():
 
     icos = []
     r_icos = []
-    slash_icos = []
+    glaive_icos = []
     for i in range(0, 31):
         icos.append(
             pygame.image.load(
@@ -684,7 +684,7 @@ def main():
         r_icos.append(
             pygame.image.load(
                 os.path.join("Assets", "Rocket_ico", "Rocket{}.png".format(i))))
-        slash_icos.append(
+        glaive_icos.append(
             pygame.image.load(
                 os.path.join("Assets", "Rocket_ico", "Rocket{}.png".format(i))
             )
@@ -720,7 +720,7 @@ def main():
                 pause, player, enemies, enemy_spawn_cooldown, esc_time, num, entity_lst, sec_lst = reset()
                 runtime, ticks, phase = sec_lst[0], sec_lst[1], sec_lst[2]
                 del sec_lst
-                bullets, rockets, health_packs, slashes = entity_lst[0], entity_lst[1], entity_lst[2], entity_lst[3]
+                bullets, rockets, health_packs, glaives = entity_lst[0], entity_lst[1], entity_lst[2], entity_lst[3]
                 del entity_lst
                 pause = False
 
@@ -773,11 +773,11 @@ def main():
                     enemy_spawn_cooldown = True
 
             handle_enemies(enemies, player, bullets, health_packs)
-            pause = handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, slashes)
+            pause = handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, glaives)
             handle_bullets(bullets, player, enemies)
-            handle_slashes(slashes, player)
+            handle_glaives(glaives, player)
             handle_rockets(rockets, player, enemies, bullets)
-            display(player, enemies, icos, bullets, r_icos, slash_icos, rockets, slashes, attribute_bar_ico,
+            display(player, enemies, icos, bullets, r_icos, glaive_icos, rockets, glaives, attribute_bar_ico,
                     progress_bar_ico, health_packs, reticule, phase, runtime, ui)
 
             if enemy_spawn_cooldown:
