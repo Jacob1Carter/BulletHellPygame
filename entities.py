@@ -220,6 +220,7 @@ class Player:
         self.warp_active_cooldown = self.warp_cooldown
 
         self.facing_right = True
+        self.invulnerable = False
 
     def dash(self, x, y):  # dash in the direction of the mouse
         a = abs(self.x - x)
@@ -264,9 +265,10 @@ class Player:
         return Rocket(self.x, self.y, self.angle)
 
     def take_damage(self, dam):
-        self.health -= dam
-        if self.health < 0:
-            self.health = 0
+        if not self.invulnerable:
+            self.health -= dam
+            if self.health < 0:
+                self.health = 0
 
     def heal(self, dam):
         self.health += dam
