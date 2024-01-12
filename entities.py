@@ -311,7 +311,9 @@ class Shockwave:
         self.x = warp.x + (warp.width / 2)
         self.y = warp.y + (warp.height / 2)
         self.radius = 100
-        self.thickness = 10
+        self.thickness = 1
+        self.expand_speed = 600 / main.FPS
+        self.thicken_speed = 20 / main.FPS
 
 
 class Glaive:

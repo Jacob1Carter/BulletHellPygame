@@ -23,8 +23,8 @@ FONT3 = pygame.font.SysFont("Arial", 20)
 
 primary_monitor = get_monitors()[0]
 
-WIDTH = primary_monitor.width  # 2560    #   primary_monitor.width
-HEIGHT = primary_monitor.height  # 1440    #    primary_monitor.height
+WIDTH = 2560  # 2560    #   primary_monitor.width
+HEIGHT = 1440  # 1440    #    primary_monitor.height
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 
@@ -324,6 +324,12 @@ def handle_glaives(glaives, player, enemies):
             glaive.uptime += 1
 
 
+def handle_shockwaves(shockwaves):
+    for shockwave in shockwaves:
+        shockwave.radius += shockwave.expand_speed
+        shockwave.thickness += shockwave.thicken_speed
+
+
 def handle_rockets(rockets, player, enemies, bullets):
     x, y = pygame.mouse.get_pos()
     dmg_lst = []
@@ -395,8 +401,7 @@ def handle_rockets(rockets, player, enemies, bullets):
                 rocket.explode_time -= 1
 
 
-def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, attribute_bar_ico, progress_bar_ico,
-            health_packs, reticule, phase, runtime, ui):
+def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, attribute_bar_ico, progress_bar_ico, health_packs, reticule, phase, runtime, ui):
     WIN.fill(COLOURS["black"])
     for pack in health_packs:
         WIN.blit(pack.img, pack.rect)
@@ -409,7 +414,7 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
     #   Show shockwave
 
     for shockwave in shockwaves:
-        pygame.draw.circle(WIN, COLOURS["pink"], (shockwave.x, shockwave.y), shockwave.radius, shockwave.thickness)
+        pygame.draw.circle(WIN, COLOURS["pink"], (shockwave.x, shockwave.y), shockwave.radius, int(shockwave.thickness))
 
     #   Show bullets
 
@@ -454,8 +459,7 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
     pygame.display.update()
 
 
-def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase,
-               runtime):
+def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase, runtime):
     for enemy in enemies:
         pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(
             (enemies[enemy].x - (enemies[enemy].width / 2)),
@@ -636,13 +640,11 @@ def settings_display(reticule_button, back_button):
 
     pygame.draw.rect(WIN, reticule_button.colour, reticule_button.rect)
     reticule_text = FONT2.render(reticule_button.text, True, reticule_button.text_colour)
-    WIN.blit(reticule_text, (reticule_button.x + ((reticule_button.width - reticule_text.get_width()) / 2),
-                             (reticule_button.y + ((reticule_button.height - reticule_text.get_height()) / 2))))
+    WIN.blit(reticule_text, (reticule_button.x + ((reticule_button.width - reticule_text.get_width()) / 2), (reticule_button.y + ((reticule_button.height - reticule_text.get_height()) / 2))))
 
     pygame.draw.rect(WIN, back_button.colour, back_button.rect)
     back_text = FONT2.render(back_button.text, True, back_button.text_colour)
-    WIN.blit(back_text, (back_button.x + ((back_button.width - back_text.get_width()) / 2),
-                         (back_button.y + ((back_button.height - back_text.get_height()) / 2))))
+    WIN.blit(back_text, (back_button.x + ((back_button.width - back_text.get_width()) / 2), (back_button.y + ((back_button.height - back_text.get_height()) / 2))))
 
 
 def reticule_display(width_button, height_button, dot_button, gap_button, thickness_button, back_button):
@@ -886,6 +888,7 @@ def main():
             handle_bullets(bullets, player, enemies)
             handle_glaives(glaives, player, enemies)
             handle_rockets(rockets, player, enemies, bullets)
+            handle_shockwaves(shockwaves)
             display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, attribute_bar_ico,
                     progress_bar_ico, health_packs, reticule, phase, runtime, ui)
 
