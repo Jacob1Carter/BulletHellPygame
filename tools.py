@@ -8,7 +8,7 @@ def refactor():
         img.save(os.path.join("Assets", "Warp_ico", f"Warp{str(i)}.png"))
 
 
-def other():
+def flip_test():
     import pygame
     import sys
 
@@ -46,6 +46,3 @@ def other():
     # Quit Pygame
     pygame.quit()
     sys.exit()
-
-
-other()
