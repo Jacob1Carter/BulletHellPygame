@@ -1,3 +1,29 @@
-Thingys to do cause why not
+=== TO-DO List ===
 
-1 -
+== 1. Make the ability cooldown sprite for the Slash/Glaive ability ==
+
+== 2. Work on Phase 6 Boss fight ==
+
+== 3. Add a currency system for killing enemies ==
+
+== 4. Remake the enemy AI ==
+
+== 5. Add more enemy variety ==
+
+== 6. Add player shop/upgrades ==
+
+== 7. Think of more abilities to add XD ==
+
+== 8. Create more levels ig ==
+
+== 9. Add an explosion effect when you teleport back to warp ==
+
+== 10. Re adjust difficulty, length and enemy spawn rate of levels ==
+
+== 11. Make the dash go to cursor rather than in just the direction ==
+
+== 12. Make bullets of enemies slower/more visible so that it allows for counter play ==
+
+== 13. Balance damage / make everything more tanky overall ==
+
+== 14. Fix the bullets == : Wrote by Jacob :
