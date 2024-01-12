@@ -1,20 +1,17 @@
-PlayerShoot.mp3
-EnemyShoot.mp3
-PlayerGetHit.mp3
-EnemyGetHit.mp3
-PlayerHit.mp3
-EnemyHit.mp3
-PlayerDie.mp3
-EnemyDie.mp3
-LaunchRocket.mp3
-RocketExplode.mp3
-RocketBeep.mp3
-Slash.mp3
-Dash.mp3
-Lose.mp3
-Win.mp3
-DropHealthPack.mp3
-UseHealthPack.mp3
-GunOverheat.mp3
+=== TO-DO List ===
 
-progress bar slightly overlaps at the end
+== 1. Make the ability cooldown sprite for the Slash/Glaive ability ==
+
+== 2. Work on Phase 6 Bossfight ==
+
+== 3. Add a currency system for killing enemies ==
+
+== 4. Remake the enemy AI ==
+
+== 5. Add more enemy variety ==
+
+== 6. Add player shop/upgrades ==
+
+== 7. Think of more abilities to add XD ==
+
+== 8. Create more levels ig ==
