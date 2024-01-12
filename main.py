@@ -139,6 +139,15 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
 
     player.angle = (360 - math.atan2(y - player.y, x - player.x) * 180 / math.pi) - 90
     rot_image = pygame.transform.rotate(player.img, player.angle)
+    if player.angle >= 360 or player.angle < 180:
+        if player.facing_right:
+            print("LEFT")
+            player.facing_right = False
+            rot_image = pygame.transform.flip(rot_image, False, True)
+    if 360 > player.angle >= 180 and not player.facing_right:
+        print("RIGHT")
+        player.facing_right = True
+        rot_image = pygame.transform.flip(rot_image, False, False)
     player.rect = rot_image.get_rect(center=(player.x, player.y))
 
     #   dash
@@ -538,13 +547,13 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_act
     else:
         phase_colour = COLOURS["white"]
 
-    pygame.draw.rect(WIN, phase_colour, pygame.Rect((WIDTH / 2 - (420 / 2)) + 8, 14, (runtime / 150) * 408, 1))
-    if (runtime / 150) * 408 >= 8:
-        if (runtime / 150) * 408 >= 400:
+    pygame.draw.rect(WIN, phase_colour, pygame.Rect((WIDTH / 2 - (420 / 2)) + 8, 14, (player.kills / 100) * 408, 1))
+    if (player.kills / 100) * 408 >= 8:
+        if (player.kills / 100) * 408 >= 400:
             pygame.draw.rect(WIN, phase_colour, pygame.Rect((WIDTH / 2 - (420 / 2)) + 15, 12, 392, 5))
         else:
             pygame.draw.rect(WIN, phase_colour,
-                             pygame.Rect((WIDTH / 2 - (420 / 2)) + 15, 12, ((runtime / 150) * 408) - 7, 5))
+                             pygame.Rect((WIDTH / 2 - (420 / 2)) + 15, 12, ((player.kills / 100) * 408) - 7, 5))
 
     WIN.blit(progress_bar_ico, (WIDTH / 2 - (420 / 2), 10))
 

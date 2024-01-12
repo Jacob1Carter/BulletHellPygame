@@ -219,6 +219,8 @@ class Player:
         self.warp_cooldown_f = -1
         self.warp_active_cooldown = self.warp_cooldown
 
+        self.facing_right = True
+
     def dash(self, x, y):  # dash in the direction of the mouse
         a = abs(self.x - x)
         b = abs(self.y - y)
@@ -301,10 +303,6 @@ class Warp:
 
 
 class Glaive:
-    class GlaivePrint:
-        def __init__(self, rect, angle):
-            self.rect = rect
-            self.angle = angle
 
     #   glaives will spin around the player, dealing damage to enemies that come in contact with them,
     #   and healing the player for the same amount.
@@ -328,7 +326,7 @@ class Glaive:
         self.rotated_img = self.img
         self.rect = self.img.get_rect(center=(player.x, player.y))
         self.damage = 50
-        self.rotate_speed = 23546756 / main.FPS
+        self.rotate_speed = -3000 / main.FPS
         self.display_angle = self.angle
         #   self.y += 40
 
