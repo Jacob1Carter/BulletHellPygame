@@ -191,7 +191,7 @@ class Player:
         self.r_active_cooldown = self.r_cooldown
         
         self.glaive_ico_i = -1
-        self.glaive_cooldown = 5 * main.FPS
+        self.glaive_cooldown = 10 * main.FPS
         self.glaive_cooldown_f = -1
         self.glaive_active_cooldown = self.glaive_cooldown
         
@@ -220,6 +220,7 @@ class Player:
         self.warp_active_cooldown = self.warp_cooldown
 
         self.facing_right = True
+        self.invulnerable = False
 
     def dash(self, x, y):  # dash in the direction of the mouse
         a = abs(self.x - x)
@@ -264,9 +265,10 @@ class Player:
         return Rocket(self.x, self.y, self.angle)
 
     def take_damage(self, dam):
-        self.health -= dam
-        if self.health < 0:
-            self.health = 0
+        if not self.invulnerable:
+            self.health -= dam
+            if self.health < 0:
+                self.health = 0
 
     def heal(self, dam):
         self.health += dam
@@ -328,6 +330,8 @@ class Glaive:
         self.damage = 50
         self.rotate_speed = -3000 / main.FPS
         self.display_angle = self.angle
+        self.uptime = 0
+        self.max_uptime = 40 * main.FPS
         #   self.y += 40
 
 

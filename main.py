@@ -138,16 +138,17 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
     #   turn
 
     player.angle = (360 - math.atan2(y - player.y, x - player.x) * 180 / math.pi) - 90
-    rot_image = pygame.transform.rotate(player.img, player.angle)
+    flip_image = player.img
     if player.angle >= 360 or player.angle < 180:
         if player.facing_right:
-            print("LEFT")
             player.facing_right = False
-            rot_image = pygame.transform.flip(rot_image, False, True)
+            flip_image = pygame.transform.flip(player.img, True, False)
     if 360 > player.angle >= 180 and not player.facing_right:
-        print("RIGHT")
         player.facing_right = True
-        rot_image = pygame.transform.flip(rot_image, False, False)
+        flip_image = pygame.transform.flip(player.img, True, False)
+    player.img = flip_image
+
+    rot_image = pygame.transform.rotate(player.img, player.angle)
     player.rect = rot_image.get_rect(center=(player.x, player.y))
 
     #   dash
@@ -306,6 +307,11 @@ def handle_glaives(glaives, player, enemies):
                 glaives.remove(glaive)
                 player.heal(glaive.damage)
                 break
+
+        if glaive.uptime >= glaive.max_uptime:
+            glaives.remove(glaive)
+        else:
+            glaive.uptime += 1
 
 
 def handle_rockets(rockets, player, enemies, bullets):
@@ -500,21 +506,30 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_act
     if len(player.warps) > 0:
         WIN.blit(warp_active_ico, (10, 130))
 
+    #   phase text
+
     phase_text = FONT3.render("PHASE: {}".format(phase), True, COLOURS["white"])
     WIN.blit(phase_text, (((WIDTH / 2) - (phase_text.get_width() / 2)), (0 + phase_text.get_height())))
     kill_text = FONT3.render("KILLS: {}".format(player.kills), True, COLOURS["white"])
     WIN.blit(kill_text, (((WIDTH / 2) - (kill_text.get_width() / 2)), (20 + kill_text.get_height())))
 
+    #   Health packs
+
     healthpack_text = FONT3.render("Health Packs: {}".format(len(player.collected_health_packs)), True,
                                    COLOURS["white"])
     WIN.blit(healthpack_text, (WIDTH - healthpack_text.get_width() - 10, 0 + 10))
 
-    pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(15, HEIGHT - 8, (player.health / player.max_health) * 200, 1))
-    if (player.health / player.max_health) * 200 > 193:
-        pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(22, HEIGHT - 9, 193, 3))
-    elif (player.health / player.max_health) * 200 > 7:
-        pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(22, HEIGHT - 9, (player.health / player.max_health) * 200, 3))
-    WIN.blit(attribute_bar_ico, (10, HEIGHT - 10))
+    #   Player health bar
+
+    if not player.invulnerable:
+        pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(15, HEIGHT - 8, (player.health / player.max_health) * 200, 1))
+        if (player.health / player.max_health) * 200 > 193:
+            pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(22, HEIGHT - 9, 193, 3))
+        elif (player.health / player.max_health) * 200 > 7:
+            pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(22, HEIGHT - 9, (player.health / player.max_health) * 200, 3))
+        WIN.blit(attribute_bar_ico, (10, HEIGHT - 10))
+
+    #   Player ammo bar
 
     bar_colour = COLOURS["green"]
     if player.overheat >= player.max_overheat:
@@ -782,6 +797,10 @@ def main():
 
                 if event.key == pygame.K_F1:
                     ui = not ui
+
+                if event.key == pygame.K_F5:
+                    player.health = player.max_health
+                    player.invulnerable = not player.invulnerable
 
         keys_pressed = pygame.key.get_pressed()
         mouse_pressed = pygame.mouse.get_pressed()
