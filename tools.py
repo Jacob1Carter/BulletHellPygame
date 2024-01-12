@@ -8,6 +8,17 @@ def refactor():
         img.save(os.path.join("Assets", "Warp_ico", f"Warp{str(i)}.png"))
 
 
+def crop():
+    for i in range(1, 31):
+        img = Image.open(os.path.join("Assets", "Glaive_ico", f"Glaive{str(i)}.png"))
+        width, height = img.size
+        img = img.convert("RGBA")
+        for y in range(height):
+            for x in range(width):
+                if y >= i:
+                    img.putpixel((x, y), (0, 0, 0, 0))  #   idk (broken)
+        img.save(os.path.join("Assets", "Glaive_ico", f"Glaive{str(i)}.png"))
+
 def flip_test():
     import pygame
     import sys

@@ -324,7 +324,7 @@ class Glaive:
         self.radius = 180
         self.angle = -player.angle + self.initial_offset
         self.length = math.pi * 40
-        self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "slash.png")), (self.width, self.height))
+        self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "glaive.png")), (self.width, self.height))
         self.rotated_img = self.img
         self.rect = self.img.get_rect(center=(player.x, player.y))
         self.damage = 50
