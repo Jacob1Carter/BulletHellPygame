@@ -189,10 +189,12 @@ class Player:
         self.r_cooldown = 10 * main.FPS
         self.r_cooldown_f = -1
         self.r_active_cooldown = self.r_cooldown
+        
         self.glaive_ico_i = -1
         self.glaive_cooldown = 5 * main.FPS
         self.glaive_cooldown_f = -1
         self.glaive_active_cooldown = self.glaive_cooldown
+        
         self.bullet_img = main.pygame.transform.scale(
             main.pygame.image.load(
                 main.os.path.join("Assets", "Bullets", "Bullet_green.png")),
@@ -211,8 +213,13 @@ class Player:
         self.kills = 0
         self.collected_health_packs = []
         self.warps = []
-        self.warp_max_cooldown = 5 * main.FPS
-        self.warp_cooldown = 0
+
+        self.warp_ico_i = -1
+        self.warp_cooldown = 15 * main.FPS
+        self.warp_cooldown_f = -1
+        self.warp_active_cooldown = self.warp_cooldown
+
+        self.facing_right = True
 
     def dash(self, x, y):  # dash in the direction of the mouse
         a = abs(self.x - x)
@@ -290,14 +297,12 @@ class Warp:
 
     def detonate(self, player):
         player.warps = []
-        player.warp_cooldown = player.warp_max_cooldown
+        player.warp_active_cooldown = 0
+        player.warp_cooldown_f = 0
+        player.warp_ico_i = 0
 
 
 class Glaive:
-    class GlaivePrint:
-        def __init__(self, rect, angle):
-            self.rect = rect
-            self.angle = angle
 
     #   glaives will spin around the player, dealing damage to enemies that come in contact with them,
     #   and healing the player for the same amount.
@@ -321,7 +326,7 @@ class Glaive:
         self.rotated_img = self.img
         self.rect = self.img.get_rect(center=(player.x, player.y))
         self.damage = 50
-        self.rotate_speed = 23546756 / main.FPS
+        self.rotate_speed = -3000 / main.FPS
         self.display_angle = self.angle
         #   self.y += 40
 

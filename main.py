@@ -139,6 +139,15 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
 
     player.angle = (360 - math.atan2(y - player.y, x - player.x) * 180 / math.pi) - 90
     rot_image = pygame.transform.rotate(player.img, player.angle)
+    if player.angle >= 360 or player.angle < 180:
+        if player.facing_right:
+            print("LEFT")
+            player.facing_right = False
+            rot_image = pygame.transform.flip(rot_image, False, True)
+    if 360 > player.angle >= 180 and not player.facing_right:
+        print("RIGHT")
+        player.facing_right = True
+        rot_image = pygame.transform.flip(rot_image, False, False)
     player.rect = rot_image.get_rect(center=(player.x, player.y))
 
     #   dash
@@ -185,23 +194,18 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
 
     #   warp
 
-    if keys_pressed[pygame.K_f]:
+    if player.warp_active_cooldown < player.warp_cooldown:
+        player.warp_active_cooldown += 1
+    elif keys_pressed[pygame.K_f]:
         if len(player.warps) == 0:
-            if player.warp_cooldown == 0:
-                player.warps.append(player.place_warp())
+            player.warps.append(player.place_warp())
         else:
             if player.warps[0].cast_time <= 0:
-                print("FLAG")
                 player.activate_warp(player.warps[0])
-
-    if player.warp_cooldown > 0:
-        player.warp_cooldown -= 1
 
     for warp in player.warps:
         if warp.cast_time > 0:
             warp.cast_time -= 1
-
-        print(warp.cast_time)
 
     #   check health pack
 
@@ -222,6 +226,11 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
             else:
                 player.heal(player.collected_health_packs[0].health)
                 player.collected_health_packs.pop(0)
+
+    #   add kills
+
+    if keys_pressed[pygame.K_k]:
+        player.kills += 1
 
     #   check health
 
@@ -370,7 +379,7 @@ def handle_rockets(rockets, player, enemies, bullets):
                 rocket.explode_time -= 1
 
 
-def display(player, enemies, dashes, bullets, r_icos, glaive_icos, rockets, glaives, attribute_bar_ico, progress_bar_ico,
+def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, attribute_bar_ico, progress_bar_ico,
             health_packs, reticule, phase, runtime, ui):
     WIN.fill(COLOURS["black"])
     for pack in health_packs:
@@ -418,13 +427,13 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, rockets, glai
     #   Show UI
 
     if ui:
-        display_ui(player, enemies, dashes, r_icos, glaive_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
+        display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase,
                    runtime)
 
     pygame.display.update()
 
 
-def display_ui(player, enemies, dashes, r_icos, glaive_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
+def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase,
                runtime):
     for enemy in enemies:
         pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(
@@ -447,6 +456,7 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, attribute_bar_ico, 
     WIN.blit(dashes[0], (10, 10))
     WIN.blit(r_icos[0], (10, 50))
     WIN.blit(glaive_icos[0], (10, 90))
+    WIN.blit(warp_icos[0], (10, 130))
 
     if player.ico_i < 0:
         player.ico_i = 30
@@ -472,9 +482,23 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, attribute_bar_ico, 
         player.glaive_ico_i += 1
         player.glaive_cooldown_f += player.glaive_cooldown / 30
 
+    if player.warp_ico_i < 0:
+        player.warp_ico_i = 30
+    if player.warp_cooldown_f < 0:
+        player.warp_cooldown_f = player.warp_cooldown
+    if player.warp_active_cooldown > player.warp_cooldown_f.__round__(3):
+        player.warp_ico_i += 1
+        player.warp_cooldown_f += player.warp_cooldown / 30
+    if player.warp_ico_i > 30:
+        player.warp_ico_i = 30
+
     WIN.blit(dashes[player.ico_i], (10, 10))
     WIN.blit(r_icos[player.r_ico_i], (10, 50))
     WIN.blit(glaive_icos[player.glaive_ico_i], (10, 90))
+    WIN.blit(warp_icos[player.warp_ico_i], (10, 130))
+
+    if len(player.warps) > 0:
+        WIN.blit(warp_active_ico, (10, 130))
 
     phase_text = FONT3.render("PHASE: {}".format(phase), True, COLOURS["white"])
     WIN.blit(phase_text, (((WIDTH / 2) - (phase_text.get_width() / 2)), (0 + phase_text.get_height())))
@@ -523,13 +547,13 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, attribute_bar_ico, 
     else:
         phase_colour = COLOURS["white"]
 
-    pygame.draw.rect(WIN, phase_colour, pygame.Rect((WIDTH / 2 - (420 / 2)) + 8, 14, (runtime / 150) * 408, 1))
-    if (runtime / 150) * 408 >= 8:
-        if (runtime / 150) * 408 >= 400:
+    pygame.draw.rect(WIN, phase_colour, pygame.Rect((WIDTH / 2 - (420 / 2)) + 8, 14, (player.kills / 100) * 408, 1))
+    if (player.kills / 100) * 408 >= 8:
+        if (player.kills / 100) * 408 >= 400:
             pygame.draw.rect(WIN, phase_colour, pygame.Rect((WIDTH / 2 - (420 / 2)) + 15, 12, 392, 5))
         else:
             pygame.draw.rect(WIN, phase_colour,
-                             pygame.Rect((WIDTH / 2 - (420 / 2)) + 15, 12, ((runtime / 150) * 408) - 7, 5))
+                             pygame.Rect((WIDTH / 2 - (420 / 2)) + 15, 12, ((player.kills / 100) * 408) - 7, 5))
 
     WIN.blit(progress_bar_ico, (WIDTH / 2 - (420 / 2), 10))
 
@@ -715,18 +739,30 @@ def main():
     icos = []
     r_icos = []
     glaive_icos = []
+    warp_icos = []
     for i in range(0, 31):
         icos.append(
             pygame.image.load(
-                os.path.join("Assets", "Dash_ico", "Dash{}.png".format(i))))
+                os.path.join("Assets", "Dash_ico", "Dash{}.png".format(i))
+            )
+        )
         r_icos.append(
-            pygame.image.load(
-                os.path.join("Assets", "Rocket_ico", "Rocket{}.png".format(i))))
-        glaive_icos.append(
             pygame.image.load(
                 os.path.join("Assets", "Rocket_ico", "Rocket{}.png".format(i))
             )
         )
+        glaive_icos.append(
+            pygame.image.load(
+                os.path.join("Assets", "Glaive_ico", "Glaive{}.png".format(i))
+            )
+        )
+        warp_icos.append(
+            pygame.image.load(
+                os.path.join("Assets", "Warp_ico", "Warp{}.png".format(i))
+            )
+        )
+
+    warp_active_ico = pygame.image.load(os.path.join("Assets", "Warp_ico", "WarpActive.png"))
 
     pygame.display.set_caption("Shooter")
     clock = pygame.time.Clock()
@@ -815,7 +851,7 @@ def main():
             handle_bullets(bullets, player, enemies)
             handle_glaives(glaives, player, enemies)
             handle_rockets(rockets, player, enemies, bullets)
-            display(player, enemies, icos, bullets, r_icos, glaive_icos, rockets, glaives, attribute_bar_ico,
+            display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, attribute_bar_ico,
                     progress_bar_ico, health_packs, reticule, phase, runtime, ui)
 
             if enemy_spawn_cooldown:
@@ -830,37 +866,38 @@ def main():
             else:
                 ticks += 1
 
-            if 0 <= runtime < 10:
+            #if 0 <= runtime < 10:
+            if player.kills == 0 or player.kills <= 15:
                 phase = "1"
                 spawn_rules = {
                     "delay": 4,
                     "max": 5,
                 }
-            elif 10 <= runtime < 30:
+            elif 15 < player.kills <= 40:
                 phase = "2"
                 spawn_rules = {
                     "delay": 3,
                     "max": 10,
                 }
-            elif 30 <= runtime < 60:
+            elif 40 < player.kills <= 60:
                 phase = "3"
                 spawn_rules = {
                     "delay": 2,
                     "max": 15,
                 }
-            elif 60 <= runtime < 90:
+            elif 60 < player.kills <= 80:
                 phase = "4"
                 spawn_rules = {
                     "delay": 1.5,
                     "max": 20,
                 }
-            elif 90 <= runtime < 150:
+            elif 80 < player.kills <= 100:
                 phase = "5"
                 spawn_rules = {
                     "delay": 0.5,
                     "max": 30,
                 }
-            elif runtime >= 150:
+            elif player.kills >= 100:
                 phase = "0"
                 spawn_rules = {
                     "delay": 0,
@@ -878,4 +915,3 @@ if __name__ == "__main__":
     main()
 
 #   \main.py
-# ec1c24 - red color
