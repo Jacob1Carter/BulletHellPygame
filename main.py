@@ -218,6 +218,11 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
                 player.heal(player.collected_health_packs[0].health)
                 player.collected_health_packs.pop(0)
 
+    #   add kills
+
+    if keys_pressed[pygame.K_k]:
+        player.kills += 1
+
     #   check health
 
     if player.health == 0:
@@ -852,37 +857,38 @@ def main():
             else:
                 ticks += 1
 
-            if 0 <= runtime < 10:
+            #if 0 <= runtime < 10:
+            if player.kills == 0 or player.kills <= 15:
                 phase = "1"
                 spawn_rules = {
                     "delay": 4,
                     "max": 5,
                 }
-            elif 10 <= runtime < 30:
+            elif 15 < player.kills <= 40:
                 phase = "2"
                 spawn_rules = {
                     "delay": 3,
                     "max": 10,
                 }
-            elif 30 <= runtime < 60:
+            elif 40 < player.kills <= 60:
                 phase = "3"
                 spawn_rules = {
                     "delay": 2,
                     "max": 15,
                 }
-            elif 60 <= runtime < 90:
+            elif 60 < player.kills <= 80:
                 phase = "4"
                 spawn_rules = {
                     "delay": 1.5,
                     "max": 20,
                 }
-            elif 90 <= runtime < 150:
+            elif 80 < player.kills <= 100:
                 phase = "5"
                 spawn_rules = {
                     "delay": 0.5,
                     "max": 30,
                 }
-            elif runtime >= 150:
+            elif player.kills >= 100:
                 phase = "0"
                 spawn_rules = {
                     "delay": 0,
