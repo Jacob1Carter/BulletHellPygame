@@ -8,6 +8,7 @@ import ui_objects
 import entities
 from screeninfo import get_monitors
 
+
 pygame.font.init()
 
 DISPLAY = False
@@ -246,6 +247,7 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
 #   hits an entity of the opposing team, if this is the case, the bullet deals damage, and is removed. There is one
 #   final check to ensure the bullet does not go out of bounds.
 def handle_bullets(bullets, player, enemies):
+    remove_list = []
     for bullet in bullets:
 
         #   move
@@ -265,7 +267,8 @@ def handle_bullets(bullets, player, enemies):
             #   player.y + player.height > bullet.y > player.y:
             if distance <= player.width:
                 player.take_damage(bullet.damage)
-                bullets.remove(bullet)
+                if bullet not in remove_list:
+                    remove_list.append(bullet)
         elif bullet.tag == "0":
             for enemy in enemies:
                 distance = math.sqrt((bullet.x - enemies[enemy].x) ** 2 + (bullet.y - enemies[enemy].y) ** 2)
@@ -273,14 +276,21 @@ def handle_bullets(bullets, player, enemies):
                 #   enemies[enemy].y + enemies[enemy].height > bullet.y > enemies[enemy].y:
                 if distance <= enemies[enemy].width:
                     enemies[enemy].take_damage(bullet.damage)
-                    bullets.remove(bullet)
+                    if bullet not in remove_list:
+                        remove_list.append(bullet)
                     player.heal(3)
                     break
 
         #   check if out of bounds
 
-        if bullet.x < 0 or bullet.x > WIDTH or bullet.y < 0 or bullet.y > HEIGHT and bullet in bullets:
-            bullets.remove(bullet)
+        if bullet.x < 0 or bullet.x > WIDTH or bullet.y < 0 or bullet.y > HEIGHT:
+            if bullet not in remove_list:
+                remove_list.append(bullet)
+
+    #   remove bullets
+
+    for bullet in remove_list:
+        bullets.remove(bullet)
 
 
 def handle_glaives(glaives, player, enemies):

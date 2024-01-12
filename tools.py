@@ -10,14 +10,14 @@ def refactor():
 
 def crop():
     for i in range(1, 31):
-        img = Image.open(os.path.join("Assets", "Glaive_ico", f"Glaive{str(i)}.png"))
+        img = Image.open(os.path.join("Assets", "Glaive_ico", f"Glaive30.png"))
         width, height = img.size
         img = img.convert("RGBA")
-        for y in range(height):
+        for y in range(height - i):
             for x in range(width):
-                if y >= i:
-                    img.putpixel((x, y), (0, 0, 0, 0))  #   idk (broken)
+                img.putpixel((x, y), (0, 0, 0, 0))
         img.save(os.path.join("Assets", "Glaive_ico", f"Glaive{str(i)}.png"))
+
 
 def flip_test():
     import pygame
@@ -57,3 +57,4 @@ def flip_test():
     # Quit Pygame
     pygame.quit()
     sys.exit()
+
