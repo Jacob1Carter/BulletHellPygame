@@ -365,7 +365,7 @@ def handle_rockets(rockets, player, enemies, bullets):
                 rocket.explode_time -= 1
 
 
-def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, rockets, glaives, attribute_bar_ico, progress_bar_ico,
+def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, attribute_bar_ico, progress_bar_ico,
             health_packs, reticule, phase, runtime, ui):
     WIN.fill(COLOURS["black"])
     for pack in health_packs:
@@ -413,13 +413,13 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, ro
     #   Show UI
 
     if ui:
-        display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
+        display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase,
                    runtime)
 
     pygame.display.update()
 
 
-def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, attribute_bar_ico, progress_bar_ico, reticule, phase,
+def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase,
                runtime):
     for enemy in enemies:
         pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(
@@ -481,8 +481,10 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, attribut
     WIN.blit(dashes[player.ico_i], (10, 10))
     WIN.blit(r_icos[player.r_ico_i], (10, 50))
     WIN.blit(glaive_icos[player.glaive_ico_i], (10, 90))
-    print(player.warp_ico_i)
     WIN.blit(warp_icos[player.warp_ico_i], (10, 130))
+
+    if len(player.warps) > 0:
+        WIN.blit(warp_active_ico, (10, 130))
 
     phase_text = FONT3.render("PHASE: {}".format(phase), True, COLOURS["white"])
     WIN.blit(phase_text, (((WIDTH / 2) - (phase_text.get_width() / 2)), (0 + phase_text.get_height())))
@@ -746,6 +748,8 @@ def main():
             )
         )
 
+    warp_active_ico = pygame.image.load(os.path.join("Assets", "Warp_ico", "WarpActive.png"))
+
     pygame.display.set_caption("Shooter")
     clock = pygame.time.Clock()
     run = True
@@ -833,7 +837,7 @@ def main():
             handle_bullets(bullets, player, enemies)
             handle_glaives(glaives, player, enemies)
             handle_rockets(rockets, player, enemies, bullets)
-            display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, rockets, glaives, attribute_bar_ico,
+            display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, attribute_bar_ico,
                     progress_bar_ico, health_packs, reticule, phase, runtime, ui)
 
             if enemy_spawn_cooldown:
@@ -896,4 +900,3 @@ if __name__ == "__main__":
     main()
 
 #   \main.py
-# ec1c24 - red color
