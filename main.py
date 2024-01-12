@@ -308,6 +308,11 @@ def handle_glaives(glaives, player, enemies):
                 player.heal(glaive.damage)
                 break
 
+        if glaive.uptime >= glaive.max_uptime:
+            glaives.remove(glaive)
+        else:
+            glaive.uptime += 1
+
 
 def handle_rockets(rockets, player, enemies, bullets):
     x, y = pygame.mouse.get_pos()

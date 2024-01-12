@@ -191,7 +191,7 @@ class Player:
         self.r_active_cooldown = self.r_cooldown
         
         self.glaive_ico_i = -1
-        self.glaive_cooldown = 5 * main.FPS
+        self.glaive_cooldown = 10 * main.FPS
         self.glaive_cooldown_f = -1
         self.glaive_active_cooldown = self.glaive_cooldown
         
@@ -330,6 +330,8 @@ class Glaive:
         self.damage = 50
         self.rotate_speed = -3000 / main.FPS
         self.display_angle = self.angle
+        self.uptime = 0
+        self.max_uptime = 40 * main.FPS
         #   self.y += 40
 
 
