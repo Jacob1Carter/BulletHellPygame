@@ -282,15 +282,16 @@ class Player:
         return Warp(self)
 
     def activate_warp(self, warp):
-        self.x = warp.x - (warp.width // 2)
-        self.y = warp.y - (warp.height // 2)
-        warp.detonate(self)
+        self.x = (warp.x - (warp.width / 2)) + (self.width / 2)
+        self.y = (warp.y - (warp.height / 2)) + (self.height / 2)
+        return warp.detonate(self)
 
 
 class Warp:
+
     def __init__(self, player):
-        self.x = player.x - (player.width // 2)
-        self.y = player.y - (player.height // 2)
+        self.x = player.x - (player.width / 2)
+        self.y = player.y - (player.height / 2)
         self.cast_time = 1 * main.FPS
         self.width = 80
         self.height = 80
@@ -302,6 +303,15 @@ class Warp:
         player.warp_active_cooldown = 0
         player.warp_cooldown_f = 0
         player.warp_ico_i = 0
+        return Shockwave(self)
+
+
+class Shockwave:
+    def __init__(self, warp):
+        self.x = warp.x + (warp.width / 2)
+        self.y = warp.y + (warp.height / 2)
+        self.radius = 100
+        self.thickness = 10
 
 
 class Glaive:

@@ -25,5 +25,3 @@
 == 12. Make bullets of enemies slower/more visible so that it allows for counter play ==
 
 == 13. Balance damage / make everything more tanky overall ==
-
-== 14. Fix the bullets == : Wrote by Jacob :

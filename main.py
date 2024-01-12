@@ -122,7 +122,7 @@ def handle_enemies(enemies, player, bullets, health_packs):
 #   Called once per frame, this function is primarily used to handle all inputs from the user. This function uses the
 #   xy coordinates of the mouse, faces the player towards it, reads key inputs to move, and mouse button to shoot,
 #   dash and launch rockets. The function then checks if the player's health is 0, and ends the game if this is the case
-def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, glaives):
+def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, glaives, shockwaves):
     x, y = pygame.mouse.get_pos()
 
     #   move
@@ -203,7 +203,7 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
             player.warps.append(player.place_warp())
         else:
             if player.warps[0].cast_time <= 0:
-                player.activate_warp(player.warps[0])
+                shockwaves.append(player.activate_warp(player.warps[0]))
 
     for warp in player.warps:
         if warp.cast_time > 0:
@@ -395,7 +395,7 @@ def handle_rockets(rockets, player, enemies, bullets):
                 rocket.explode_time -= 1
 
 
-def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, attribute_bar_ico, progress_bar_ico,
+def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, attribute_bar_ico, progress_bar_ico,
             health_packs, reticule, phase, runtime, ui):
     WIN.fill(COLOURS["black"])
     for pack in health_packs:
@@ -405,6 +405,11 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
 
     for warp in player.warps:
         WIN.blit(warp.img, warp.rect)
+
+    #   Show shockwave
+
+    for shockwave in shockwaves:
+        pygame.draw.circle(WIN, COLOURS["pink"], (shockwave.x, shockwave.y), shockwave.radius, shockwave.thickness)
 
     #   Show bullets
 
@@ -721,6 +726,7 @@ def main():
     rockets = []
     health_packs = []
     glaives = []
+    shockwaves = []
 
     play_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60,
                                     COLOURS["green"], "PLAY", COLOURS["white"])
@@ -876,11 +882,11 @@ def main():
                     enemy_spawn_cooldown = True
 
             handle_enemies(enemies, player, bullets, health_packs)
-            pause = handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, glaives)
+            pause = handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, glaives, shockwaves)
             handle_bullets(bullets, player, enemies)
             handle_glaives(glaives, player, enemies)
             handle_rockets(rockets, player, enemies, bullets)
-            display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, attribute_bar_ico,
+            display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, attribute_bar_ico,
                     progress_bar_ico, health_packs, reticule, phase, runtime, ui)
 
             if enemy_spawn_cooldown:
