@@ -331,7 +331,7 @@ def handle_shockwaves(shockwaves, enemies):
 
         for enemy in enemies:
             distance = math.sqrt((shockwave.x - enemies[enemy].x) ** 2 + (shockwave.y - enemies[enemy].y) ** 2)
-            if distance <= shockwave.radius:
+            if (shockwave.radius - shockwave.thickness) <= distance <= shockwave.radius:
                 if enemy not in shockwave.damage_list:
                     shockwave.damage_list.append(enemy)
                     enemies[enemy].take_damage(shockwave.damage)
@@ -924,7 +924,7 @@ def main():
                     "delay": 1.5,
                     "max": 20,
                 }
-            elif 80 < player.kills <= 500:
+            elif 80 < player.kills <= 100:
                 phase = "5"
                 spawn_rules = {
                     "delay": 0.5,
