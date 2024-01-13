@@ -324,10 +324,26 @@ def handle_glaives(glaives, player, enemies):
             glaive.uptime += 1
 
 
-def handle_shockwaves(shockwaves):
+def handle_shockwaves(shockwaves, enemies):
     for shockwave in shockwaves:
         shockwave.radius += shockwave.expand_speed
         shockwave.thickness += shockwave.thicken_speed
+
+        for enemy in enemies:
+            distance = math.sqrt((shockwave.x - enemies[enemy].x) ** 2 + (shockwave.y - enemies[enemy].y) ** 2)
+            if distance <= shockwave.radius:
+                if enemy not in shockwave.damage_list:
+                    shockwave.damage_list.append(enemy)
+                    enemies[enemy].take_damage(shockwave.damage)
+
+        shockwave.damage = (shockwave.a * (math.sqrt(shockwave.thickness))) + (shockwave.b * shockwave.thickness) + shockwave.c
+
+        if WIDTH >= HEIGHT:
+            if shockwave.radius > WIDTH*1.2:
+                shockwaves.remove(shockwave)
+        else:
+            if shockwave.radius > HEIGHT*1.2:
+                shockwaves.remove(shockwave)
 
 
 def handle_rockets(rockets, player, enemies, bullets):
@@ -401,7 +417,7 @@ def handle_rockets(rockets, player, enemies, bullets):
                 rocket.explode_time -= 1
 
 
-def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, attribute_bar_ico, progress_bar_ico, health_packs, reticule, phase, runtime, ui):
+def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, attribute_bar_ico, progress_bar_ico, health_packs, reticule, phase, ui):
     WIN.fill(COLOURS["black"])
     for pack in health_packs:
         WIN.blit(pack.img, pack.rect)
@@ -453,13 +469,12 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
     #   Show UI
 
     if ui:
-        display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase,
-                   runtime)
+        display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase)
 
     pygame.display.update()
 
 
-def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase, runtime):
+def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase):
     for enemy in enemies:
         pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(
             (enemies[enemy].x - (enemies[enemy].width / 2)),
@@ -534,8 +549,7 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_act
 
     #   Health packs
 
-    healthpack_text = FONT3.render("Health Packs: {}".format(len(player.collected_health_packs)), True,
-                                   COLOURS["white"])
+    healthpack_text = FONT3.render("Health Packs: {}".format(len(player.collected_health_packs)), True, COLOURS["white"])
     WIN.blit(healthpack_text, (WIDTH - healthpack_text.get_width() - 10, 0 + 10))
 
     #   Player health bar
@@ -556,14 +570,11 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_act
     elif player.max_overheat * 0.8 <= player.overheat < player.max_overheat:
         bar_colour = COLOURS["yellow"]
 
-    pygame.draw.rect(WIN, bar_colour,
-                     pygame.Rect(WIDTH - 210 - 20 + 15, HEIGHT - 8, (player.overheat / player.max_overheat) * 200, 1))
+    pygame.draw.rect(WIN, bar_colour, pygame.Rect(WIDTH - 210 - 20 + 15, HEIGHT - 8, (player.overheat / player.max_overheat) * 200, 1))
     if (player.overheat / player.max_overheat) * 200 > 193:
         pygame.draw.rect(WIN, bar_colour, pygame.Rect(WIDTH - 210 - 20 + 22, HEIGHT - 9, 193, 3))
     elif (player.overheat / player.max_overheat) * 200 > 7:
-        pygame.draw.rect(WIN, bar_colour,
-                         pygame.Rect(WIDTH - 210 - 20 + 22, HEIGHT - 9, (player.overheat / player.max_overheat) * 200,
-                                     3))
+        pygame.draw.rect(WIN, bar_colour, pygame.Rect(WIDTH - 210 - 20 + 22, HEIGHT - 9, (player.overheat / player.max_overheat) * 200, 3))
     WIN.blit(attribute_bar_ico, (WIDTH - 210 - 10, HEIGHT - 10))
 
     #   Phase bar
@@ -586,8 +597,7 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_act
         if (player.kills / 100) * 408 >= 400:
             pygame.draw.rect(WIN, phase_colour, pygame.Rect((WIDTH / 2 - (420 / 2)) + 15, 12, 392, 5))
         else:
-            pygame.draw.rect(WIN, phase_colour,
-                             pygame.Rect((WIDTH / 2 - (420 / 2)) + 15, 12, ((player.kills / 100) * 408) - 7, 5))
+            pygame.draw.rect(WIN, phase_colour, pygame.Rect((WIDTH / 2 - (420 / 2)) + 15, 12, ((player.kills / 100) * 408) - 7, 5))
 
     WIN.blit(progress_bar_ico, (WIDTH / 2 - (420 / 2), 10))
 
@@ -696,10 +706,10 @@ def end_game(end_message):
 
 
 def reset():
-    # returns: pause, player, enemies, enemy_spawn_cooldown, esc_time, num, [bullets, rockets, health_packs, glaives],
-    # [runtime, ticks, phase]
+    # returns: pause, player, enemies, enemy_spawn_cooldown, esc_time, num, [bullets, rockets, health_packs, glaives, shockwaves],
+    # [ticks, phase]
 
-    return False, entities.Player(), {}, False, 0, 1, [[], [], [], []], [0, 0, 1]
+    return False, entities.Player(), {}, False, 0, 1, [[], [], [], [], []], [0, 1]
 
 
 def main():
@@ -719,7 +729,6 @@ def main():
         "max": 10,
     }
 
-    runtime = 0
     phase = "1"
 
     num = 1
@@ -730,37 +739,25 @@ def main():
     glaives = []
     shockwaves = []
 
-    play_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60,
-                                    COLOURS["green"], "PLAY", COLOURS["white"])
-    restart_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60,
-                                       COLOURS["dark_grey"], "RESTART", COLOURS["white"])
-    settings_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60,
-                                        COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
-    exit_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60,
-                                    COLOURS["red"], "EXIT", COLOURS["white"])
+    play_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "PLAY", COLOURS["white"])
+    restart_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60, COLOURS["dark_grey"], "RESTART", COLOURS["white"])
+    settings_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60, COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
+    exit_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"], "EXIT", COLOURS["white"])
 
-    reticule_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60,
-                                        COLOURS["green"], "EDIT RETICULE", COLOURS["white"])
-    back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60,
-                                    COLOURS["light_grey"], "BACK", COLOURS["white"])
+    reticule_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "EDIT RETICULE", COLOURS["white"])
+    back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60, COLOURS["light_grey"], "BACK", COLOURS["white"])
 
-    width_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 140, WIDTH // 4, 60,
-                                        COLOURS["green"], "PLAY", COLOURS["white"])
+    width_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 140, WIDTH // 4, 60, COLOURS["green"], "PLAY", COLOURS["white"])
 
-    height_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60,
-                                         COLOURS["green"], "PLAY", COLOURS["white"])
+    height_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "PLAY", COLOURS["white"])
 
-    dot_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60,
-                                      COLOURS["dark_grey"], "RESTART", COLOURS["white"])
+    dot_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60, COLOURS["dark_grey"], "RESTART", COLOURS["white"])
 
-    gap_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60,
-                                      COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
+    gap_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60, COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
 
-    thickness_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60,
-                                            COLOURS["red"], "EXIT", COLOURS["white"])
+    thickness_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"], "EXIT", COLOURS["white"])
 
-    reticule_back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 235, WIDTH // 4, 60,
-                                             COLOURS["light_grey"], "BACK", COLOURS["white"])
+    reticule_back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 235, WIDTH // 4, 60, COLOURS["light_grey"], "BACK", COLOURS["white"])
 
     reticule = ui_objects.Reticule()
 
@@ -829,9 +826,9 @@ def main():
 
             if restart_button.is_clicked(0):
                 pause, player, enemies, enemy_spawn_cooldown, esc_time, num, entity_lst, sec_lst = reset()
-                runtime, ticks, phase = sec_lst[0], sec_lst[1], sec_lst[2]
+                ticks, phase = sec_lst[0], sec_lst[1]
                 del sec_lst
-                bullets, rockets, health_packs, glaives = entity_lst[0], entity_lst[1], entity_lst[2], entity_lst[3]
+                bullets, rockets, health_packs, glaives, shockwaves = entity_lst[0], entity_lst[1], entity_lst[2], entity_lst[3], entity_lst[4]
                 del entity_lst
                 pause = False
 
@@ -852,8 +849,7 @@ def main():
                 if reticule_bool:
                     handle_cool_i(width_button, height_button, dot_button, gap_button, thickness_button)
                     handle_cool(reticule_back_button)
-                    reticule_display(width_button, height_button, dot_button, gap_button, thickness_button,
-                                     reticule_back_button)
+                    reticule_display(width_button, height_button, dot_button, gap_button, thickness_button, reticule_back_button)
                 else:
                     handle_cool(reticule_button, back_button)
                     settings_display(reticule_button, back_button)
@@ -871,26 +867,26 @@ def main():
                     if random.random() > 0.1:
                         enemies.update({
                             num:
-                                entities.Enemy(random.randint(30, WIDTH - 30), random.randint(30, HEIGHT - 30), 15, 0,
-                                               300, 1)
+                                entities.Enemy(random.randint(30, WIDTH - 30), random.randint(30, HEIGHT - 30), 15, 0, 300, 1)
                         })
                     else:
                         enemies.update({
                             num:
-                                entities.Enemy(random.randint(30, WIDTH - 30), random.randint(30, HEIGHT - 30), 30, 30,
-                                               400, 1.2)
+                                entities.Enemy(random.randint(30, WIDTH - 30), random.randint(30, HEIGHT - 30), 30, 30, 400, 1.2)
                         })
                     num += 1
                     enemy_spawn_cooldown = True
+
+            #   entity handling
 
             handle_enemies(enemies, player, bullets, health_packs)
             pause = handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, glaives, shockwaves)
             handle_bullets(bullets, player, enemies)
             handle_glaives(glaives, player, enemies)
             handle_rockets(rockets, player, enemies, bullets)
-            handle_shockwaves(shockwaves)
+            handle_shockwaves(shockwaves, enemies)
             display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, attribute_bar_ico,
-                    progress_bar_ico, health_packs, reticule, phase, runtime, ui)
+                    progress_bar_ico, health_packs, reticule, phase, ui)
 
             if enemy_spawn_cooldown:
                 if esc_time >= spawn_rules["delay"] * FPS:
@@ -904,7 +900,6 @@ def main():
             else:
                 ticks += 1
 
-            #if 0 <= runtime < 10:
             if player.kills == 0 or player.kills <= 15:
                 phase = "1"
                 spawn_rules = {
@@ -929,7 +924,7 @@ def main():
                     "delay": 1.5,
                     "max": 20,
                 }
-            elif 80 < player.kills <= 100:
+            elif 80 < player.kills <= 500:
                 phase = "5"
                 spawn_rules = {
                     "delay": 0.5,
@@ -943,8 +938,6 @@ def main():
                 }
                 end_game("You won!      W")
                 pause = True
-
-            runtime += 1 / FPS
 
             #   End of gameplay loop
 

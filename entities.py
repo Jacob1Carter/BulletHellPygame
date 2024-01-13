@@ -314,6 +314,13 @@ class Shockwave:
         self.thickness = 1
         self.expand_speed = 600 / main.FPS
         self.thicken_speed = 20 / main.FPS
+        self.damage_list = []
+        self.damage = 1.25
+        self.a = 5
+        self.b = -0.25
+        self.c = -2
+
+        #   n = ax^2 + bx + c
 
 
 class Glaive:
@@ -339,7 +346,7 @@ class Glaive:
         self.img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "glaive.png")), (self.width, self.height))
         self.rotated_img = self.img
         self.rect = self.img.get_rect(center=(player.x, player.y))
-        self.damage = 50
+        self.damage = 20
         self.rotate_speed = -3000 / main.FPS
         self.display_angle = self.angle
         self.uptime = 0
