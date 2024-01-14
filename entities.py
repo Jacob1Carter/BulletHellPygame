@@ -230,6 +230,9 @@ class Player:
 
         mult = self.dash_distance / c
 
+        if mult > 1:
+            mult = 1
+
         if self.x < x:
             self.x += a * mult
             if self.y < y:

@@ -79,5 +79,3 @@ def get_json():
         data = json.load(file)
 
     print(data)
-
-get_json()
