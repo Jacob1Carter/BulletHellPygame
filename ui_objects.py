@@ -2,6 +2,7 @@
 
 import main
 
+
 #   Button class, used in the pause menu, handles by id_clicked method in main()
 #   and click cooldowns are handled by handle_objects()
 class Button:
@@ -52,7 +53,7 @@ class IntButton:
             self.width = height
             self.height = height
             self.colour = colour
-            self.text = "↡"
+            self.text = "\/"
             self.text_colour = text_colour
             self.rect = main.pygame.Rect(self.x, self.y, self.width, self.height)
             self.cool = 0
@@ -168,7 +169,7 @@ class IntButton:
             self.width = height
             self.height = height
             self.colour = colour
-            self.text = "↟"
+            self.text = "/\\"
             self.text_colour = text_colour
             self.rect = main.pygame.Rect(self.x, self.y, self.width, self.height)
             self.cool = 0
@@ -193,20 +194,13 @@ class IntButton:
 class Reticule:
 
     def __init__(self):
-        with open(main.os.path.join("Settings", "Reticule.txt")) as f:
-            for i, x in enumerate(f):
-                line = x.strip()
-                if i == 0:
-                    self.colour = tuple(line)
-                elif i == 1:
-                    self.width = int(line)
-                elif i == 2:
-                    self.height = int(line)
-                elif i == 3:
-                    self.dot = int(line)
-                elif i == 4:
-                    self.gap = int(line)
-                elif i == 5:
-                    self.thickness = int(line)
+        with open(main.os.path.join("Settings", "reticule.json"), 'r') as file:
+            data = main.json.load(file)
+            self.colour = tuple(data["colour"])
+            self.width = data["width"]
+            self.height = data["height"]
+            self.dot = data["dot"]
+            self.gap = data["gap"]
+            self.thickness = data["thickness"]
 
 #   \ui_objects.py

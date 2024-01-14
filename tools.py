@@ -1,4 +1,5 @@
 import os
+import json
 from PIL import Image
 
 
@@ -58,3 +59,25 @@ def flip_test():
     pygame.quit()
     sys.exit()
 
+
+def write_json():
+    data = {
+        "colour": (0, 255, 0),
+        "width": 20,
+        "height": 20,
+        "dot": 0,
+        "gap": 0,
+        "thickness": 1,
+    }
+
+    with open(os.path.join("Settings", "reticule.json"), "w") as file:
+        json.dump(data, file, indent=4)
+
+
+def get_json():
+    with open(os.path.join("Settings", "reticule.json"), 'r') as file:
+        data = json.load(file)
+
+    print(data)
+
+get_json()

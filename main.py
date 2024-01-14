@@ -6,6 +6,7 @@ import os
 import random
 import ui_objects
 import entities
+import json
 from screeninfo import get_monitors
 
 
@@ -624,40 +625,146 @@ def pause_display(play_button, restart_button, settings_button, exit_button):
 
     pygame.draw.rect(WIN, play_button.colour, play_button.rect)
     play_text = FONT2.render(play_button.text, True, play_button.text_colour)
-    WIN.blit(play_text, (play_button.x + ((play_button.width - play_text.get_width()) / 2),
-                         (play_button.y + ((play_button.height - play_text.get_height()) / 2))))
+    WIN.blit(play_text, (play_button.x + ((play_button.width - play_text.get_width()) / 2), (play_button.y + ((play_button.height - play_text.get_height()) / 2))))
 
     pygame.draw.rect(WIN, restart_button.colour, restart_button.rect)
     restart_text = FONT2.render(restart_button.text, True, restart_button.text_colour)
-    WIN.blit(restart_text, (restart_button.x + ((restart_button.width - restart_text.get_width()) / 2),
-                            (restart_button.y + ((restart_button.height - restart_text.get_height()) / 2))))
+    WIN.blit(restart_text, (restart_button.x + ((restart_button.width - restart_text.get_width()) / 2), (restart_button.y + ((restart_button.height - restart_text.get_height()) / 2))))
 
     pygame.draw.rect(WIN, settings_button.colour, settings_button.rect)
     settings_text = FONT2.render(settings_button.text, True, settings_button.text_colour)
-    WIN.blit(settings_text, (settings_button.x + ((settings_button.width - settings_text.get_width()) / 2),
-                             (settings_button.y + ((settings_button.height - settings_text.get_height()) / 2))))
+    WIN.blit(settings_text, (settings_button.x + ((settings_button.width - settings_text.get_width()) / 2), (settings_button.y + ((settings_button.height - settings_text.get_height()) / 2))))
 
     pygame.draw.rect(WIN, exit_button.colour, exit_button.rect)
     exit_text = FONT2.render(exit_button.text, True, exit_button.text_colour)
-    WIN.blit(exit_text, (exit_button.x + ((exit_button.width - exit_text.get_width()) / 2),
-                         (exit_button.y + ((exit_button.height - exit_text.get_height()) / 2))))
+    WIN.blit(exit_text, (exit_button.x + ((exit_button.width - exit_text.get_width()) / 2), (exit_button.y + ((exit_button.height - exit_text.get_height()) / 2))))
 
     pygame.display.update()
 
 
-def settings_display(reticule_button, back_button):
-    WIN.fill(COLOURS["white"])
+def settings_display(width_button, height_button, dot_button, gap_button, thickness_button, back_button, data):
+    WIN.fill(COLOURS["black"])
 
-    pygame.draw.rect(WIN, reticule_button.colour, reticule_button.rect)
-    reticule_text = FONT2.render(reticule_button.text, True, reticule_button.text_colour)
-    WIN.blit(reticule_text, (reticule_button.x + ((reticule_button.width - reticule_text.get_width()) / 2), (reticule_button.y + ((reticule_button.height - reticule_text.get_height()) / 2))))
+    #   Width button
+
+    pygame.draw.rect(WIN, width_button.jumpDown.colour, width_button.jumpDown.rect)
+    width_jump_down_text = FONT2.render(width_button.jumpDown.text, True, width_button.jumpDown.text_colour)
+    WIN.blit(width_jump_down_text, (width_button.jumpDown.x + ((width_button.jumpDown.width - width_jump_down_text.get_width()) / 2), (width_button.jumpDown.y + ((width_button.jumpDown.height - width_jump_down_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, width_button.down.colour, width_button.down.rect)
+    width_down_text = FONT2.render(width_button.down.text, True, width_button.down.text_colour)
+    WIN.blit(width_down_text, (width_button.down.x + ((width_button.down.width - width_down_text.get_width()) / 2), (width_button.down.y + ((width_button.down.height - width_down_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, width_button.body.colour, width_button.body.rect)
+    width_body_text = FONT2.render("{0}: {1}".format(width_button.body.text, data["width"]), True, width_button.body.text_colour)
+    WIN.blit(width_body_text, (width_button.body.x + ((width_button.body.width - width_body_text.get_width()) / 2), (width_button.body.y + ((width_button.body.height - width_body_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, width_button.up.colour, width_button.up.rect)
+    width_up_text = FONT2.render(width_button.up.text, True, width_button.up.text_colour)
+    WIN.blit(width_up_text, (width_button.up.x + ((width_button.up.width - width_up_text.get_width()) / 2), (width_button.up.y + ((width_button.up.height - width_up_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, width_button.jumpUp.colour, width_button.jumpUp.rect)
+    width_jump_up_text = FONT2.render(width_button.jumpUp.text, True, width_button.jumpUp.text_colour)
+    WIN.blit(width_jump_up_text, (width_button.jumpUp.x + ((width_button.jumpUp.width - width_jump_up_text.get_width()) / 2), (width_button.jumpUp.y + ((width_button.jumpUp.height - width_jump_up_text.get_height()) / 2))))
+
+    #   Height button
+
+    pygame.draw.rect(WIN, height_button.jumpDown.colour, height_button.jumpDown.rect)
+    height_jump_down_text = FONT2.render(height_button.jumpDown.text, True, height_button.jumpDown.text_colour)
+    WIN.blit(height_jump_down_text, (height_button.jumpDown.x + ((width_button.jumpDown.height - height_jump_down_text.get_width()) / 2), (height_button.jumpDown.y + ((height_button.jumpDown.height - height_jump_down_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, height_button.down.colour, height_button.down.rect)
+    height_down_text = FONT2.render(height_button.down.text, True, height_button.down.text_colour)
+    WIN.blit(height_down_text, (height_button.down.x + ((height_button.down.width - height_down_text.get_width()) / 2), (height_button.down.y + ((height_button.down.height - height_down_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, height_button.body.colour, height_button.body.rect)
+    height_body_text = FONT2.render("{0}: {1}".format(height_button.body.text, data["height"]), True, height_button.body.text_colour)
+    WIN.blit(height_body_text, (height_button.body.x + ((height_button.body.width - height_body_text.get_width()) / 2), (height_button.body.y + ((height_button.body.height - height_body_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, height_button.up.colour, height_button.up.rect)
+    height_up_text = FONT2.render(height_button.up.text, True, height_button.up.text_colour)
+    WIN.blit(height_up_text, (height_button.up.x + ((height_button.up.width - height_up_text.get_width()) / 2), (height_button.up.y + ((height_button.up.height - height_up_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, height_button.jumpUp.colour, height_button.jumpUp.rect)
+    height_jump_up_text = FONT2.render(height_button.jumpUp.text, True, height_button.jumpUp.text_colour)
+    WIN.blit(height_jump_up_text, (height_button.jumpUp.x + ((height_button.jumpUp.width - height_jump_up_text.get_width()) / 2), (height_button.jumpUp.y + ((height_button.jumpUp.height - height_jump_up_text.get_height()) / 2))))
+
+    #   Dot button
+
+    pygame.draw.rect(WIN, dot_button.jumpDown.colour, dot_button.jumpDown.rect)
+    dot_jump_down_text = FONT2.render(dot_button.jumpDown.text, True, dot_button.jumpDown.text_colour)
+    WIN.blit(dot_jump_down_text, (dot_button.jumpDown.x + ((dot_button.jumpDown.width - dot_jump_down_text.get_width()) / 2), (dot_button.jumpDown.y + ((dot_button.jumpDown.height - dot_jump_down_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, dot_button.down.colour, dot_button.down.rect)
+    dot_down_text = FONT2.render(dot_button.down.text, True, dot_button.down.text_colour)
+    WIN.blit(dot_down_text, (dot_button.down.x + ((dot_button.down.width - dot_down_text.get_width()) / 2), (dot_button.down.y + ((dot_button.down.height - dot_down_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, dot_button.body.colour, dot_button.body.rect)
+    dot_body_text = FONT2.render("{0}: {1}".format(dot_button.body.text, data["dot"]), True, dot_button.body.text_colour)
+    WIN.blit(dot_body_text, (dot_button.body.x + ((dot_button.body.width - dot_body_text.get_width()) / 2), (dot_button.body.y + ((dot_button.body.height - dot_body_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, dot_button.up.colour, dot_button.up.rect)
+    dot_up_text = FONT2.render(dot_button.up.text, True, dot_button.up.text_colour)
+    WIN.blit(dot_up_text, (dot_button.up.x + ((dot_button.up.width - dot_up_text.get_width()) / 2), (dot_button.up.y + ((dot_button.up.height - dot_up_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, dot_button.jumpUp.colour, dot_button.jumpUp.rect)
+    dot_jump_up_text = FONT2.render(dot_button.jumpUp.text, True, dot_button.jumpUp.text_colour)
+    WIN.blit(dot_jump_up_text, (dot_button.jumpUp.x + ((dot_button.jumpUp.width - dot_jump_up_text.get_width()) / 2), (dot_button.jumpUp.y + ((dot_button.jumpUp.height - dot_jump_up_text.get_height()) / 2))))
+
+    #   Gap button
+
+    pygame.draw.rect(WIN, gap_button.jumpDown.colour, gap_button.jumpDown.rect)
+    gap_jump_down_text = FONT2.render(gap_button.jumpDown.text, True, gap_button.jumpDown.text_colour)
+    WIN.blit(gap_jump_down_text, (gap_button.jumpDown.x + ((gap_button.jumpDown.width - gap_jump_down_text.get_width()) / 2), (gap_button.jumpDown.y + ((gap_button.jumpDown.height - gap_jump_down_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, gap_button.down.colour, gap_button.down.rect)
+    gap_down_text = FONT2.render(gap_button.down.text, True, gap_button.down.text_colour)
+    WIN.blit(gap_down_text, (gap_button.down.x + ((gap_button.down.width - gap_down_text.get_width()) / 2), (gap_button.down.y + ((gap_button.down.height - gap_down_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, gap_button.body.colour, gap_button.body.rect)
+    gap_body_text = FONT2.render("{0}: {1}".format(gap_button.body.text, data["gap"]), True, gap_button.body.text_colour)
+    WIN.blit(gap_body_text, (gap_button.body.x + ((gap_button.body.width - gap_body_text.get_width()) / 2), (gap_button.body.y + ((gap_button.body.height - gap_body_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, gap_button.up.colour, gap_button.up.rect)
+    gap_up_text = FONT2.render(gap_button.up.text, True, gap_button.up.text_colour)
+    WIN.blit(gap_up_text, (gap_button.up.x + ((gap_button.up.width - gap_up_text.get_width()) / 2), (gap_button.up.y + ((gap_button.up.height - gap_up_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, gap_button.jumpUp.colour, gap_button.jumpUp.rect)
+    gap_jump_up_text = FONT2.render(gap_button.jumpUp.text, True, gap_button.jumpUp.text_colour)
+    WIN.blit(gap_jump_up_text, (gap_button.jumpUp.x + ((gap_button.jumpUp.width - gap_jump_up_text.get_width()) / 2), (gap_button.jumpUp.y + ((gap_button.jumpUp.height - gap_jump_up_text.get_height()) / 2))))
+
+    #   Thickness button
+
+    pygame.draw.rect(WIN, thickness_button.jumpDown.colour, thickness_button.jumpDown.rect)
+    thickness_jump_down_text = FONT2.render(thickness_button.jumpDown.text, True, thickness_button.jumpDown.text_colour)
+    WIN.blit(thickness_jump_down_text, (thickness_button.jumpDown.x + ((thickness_button.jumpDown.width - thickness_jump_down_text.get_width()) / 2), (thickness_button.jumpDown.y + ((thickness_button.jumpDown.height - thickness_jump_down_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, thickness_button.down.colour, thickness_button.down.rect)
+    thickness_down_text = FONT2.render(thickness_button.down.text, True, thickness_button.down.text_colour)
+    WIN.blit(thickness_down_text, (thickness_button.down.x + ((thickness_button.down.width - thickness_down_text.get_width()) / 2), (thickness_button.down.y + ((thickness_button.down.height - thickness_down_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, thickness_button.body.colour, thickness_button.body.rect)
+    thickness_body_text = FONT2.render("{0}: {1}".format(thickness_button.body.text, data["thickness"]), True, thickness_button.body.text_colour)
+    WIN.blit(thickness_body_text, (thickness_button.body.x + ((thickness_button.body.width - thickness_body_text.get_width()) / 2), (thickness_button.body.y + ((thickness_button.body.height - thickness_body_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, thickness_button.up.colour, thickness_button.up.rect)
+    thickness_up_text = FONT2.render(thickness_button.up.text, True, thickness_button.up.text_colour)
+    WIN.blit(thickness_up_text, (thickness_button.up.x + ((thickness_button.up.width - thickness_up_text.get_width()) / 2), (thickness_button.up.y + ((thickness_button.up.height - thickness_up_text.get_height()) / 2))))
+
+    pygame.draw.rect(WIN, thickness_button.jumpUp.colour, thickness_button.jumpUp.rect)
+    thickness_jump_up_text = FONT2.render(thickness_button.jumpUp.text, True, thickness_button.jumpUp.text_colour)
+    WIN.blit(thickness_jump_up_text, (thickness_button.jumpUp.x + ((thickness_button.jumpUp.width - thickness_jump_up_text.get_width()) / 2), (thickness_button.jumpUp.y + ((thickness_button.jumpUp.height - thickness_jump_up_text.get_height()) / 2))))
+
+    #   Back button
 
     pygame.draw.rect(WIN, back_button.colour, back_button.rect)
     back_text = FONT2.render(back_button.text, True, back_button.text_colour)
     WIN.blit(back_text, (back_button.x + ((back_button.width - back_text.get_width()) / 2), (back_button.y + ((back_button.height - back_text.get_height()) / 2))))
 
+    pygame.display.update()
 
-def reticule_display(width_button, height_button, dot_button, gap_button, thickness_button, back_button):
+
+def reticule_display():
     pass
 
 
@@ -715,7 +822,6 @@ def reset():
 def main():
     pause = True
     settings = False
-    reticule_bool = False
     ui = True
 
     player = entities.Player()
@@ -744,20 +850,12 @@ def main():
     settings_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60, COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
     exit_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"], "EXIT", COLOURS["white"])
 
-    reticule_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "EDIT RETICULE", COLOURS["white"])
-    back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60, COLOURS["light_grey"], "BACK", COLOURS["white"])
-
-    width_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 140, WIDTH // 4, 60, COLOURS["green"], "PLAY", COLOURS["white"])
-
-    height_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "PLAY", COLOURS["white"])
-
-    dot_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60, COLOURS["dark_grey"], "RESTART", COLOURS["white"])
-
-    gap_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60, COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
-
-    thickness_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"], "EXIT", COLOURS["white"])
-
-    reticule_back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 235, WIDTH // 4, 60, COLOURS["light_grey"], "BACK", COLOURS["white"])
+    width_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 140, WIDTH // 4, 60, COLOURS["green"], "WIDTH", COLOURS["white"])
+    height_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "HEIGHT", COLOURS["white"])
+    dot_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60, COLOURS["dark_grey"], "DOT", COLOURS["white"])
+    gap_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60, COLOURS["light_grey"], "GAP", COLOURS["white"])
+    thickness_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"], "THICKNESS", COLOURS["white"])
+    back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 235, WIDTH // 4, 60, COLOURS["light_grey"], "BACK", COLOURS["white"])
 
     reticule = ui_objects.Reticule()
 
@@ -809,6 +907,8 @@ def main():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:
                     pause = not pause
+                    if not pause:
+                        settings = False
 
                 if event.key == pygame.K_F1:
                     ui = not ui
@@ -821,41 +921,165 @@ def main():
         mouse_pressed = pygame.mouse.get_pressed()
 
         if pause:
-            if play_button.is_clicked(0):
-                pause = False
-
-            if restart_button.is_clicked(0):
-                pause, player, enemies, enemy_spawn_cooldown, esc_time, num, entity_lst, sec_lst = reset()
-                ticks, phase = sec_lst[0], sec_lst[1]
-                del sec_lst
-                bullets, rockets, health_packs, glaives, shockwaves = entity_lst[0], entity_lst[1], entity_lst[2], entity_lst[3], entity_lst[4]
-                del entity_lst
-                pause = False
-
-            if settings_button.is_clicked(0):
-                settings = True
-
-            if exit_button.is_clicked(0):
-                pygame.quit()
-                exit()
-
             if settings:
-                if reticule_button.is_clicked(0):
-                    reticule_bool = True
+
+                #   settings loop
+
+                with open(os.path.join("Settings", "reticule.json"), 'r') as file:
+                    data = json.load(file)
+
+                #   width button
+
+                if width_button.jumpDown.is_clicked(0):
+                    data["width"] -= 10
+                    if data["width"] < 0:
+                        data["width"] = 0
+                
+                if width_button.down.is_clicked(0):
+                    data["width"] -= 1
+                    if data["width"] < 0:
+                        data["width"] = 0
+                
+                if width_button.up.is_clicked(0):
+                    data["width"] += 1
+                    if data["width"] > 100:
+                        data["width"] = 100
+                
+                if width_button.jumpUp.is_clicked(0):
+                    data["width"] += 10
+                    if data["width"] > 100:
+                        data["width"] = 100
+
+                #   height button
+
+                if height_button.jumpDown.is_clicked(0):
+                    data["height"] -= 10
+                    if data["height"] < 0:
+                        data["height"] = 0
+
+                if height_button.down.is_clicked(0):
+                    data["height"] -= 1
+                    if data["height"] < 0:
+                        data["height"] = 0
+
+                if height_button.up.is_clicked(0):
+                    data["height"] += 1
+                    if data["height"] > 100:
+                        data["height"] = 100
+
+                if height_button.jumpUp.is_clicked(0):
+                    data["height"] += 10
+                    if data["height"] > 100:
+                        data["height"] = 100
+
+                #   dot button
+
+                if dot_button.jumpDown.is_clicked(0):
+                    data["dot"] -= 10
+                    if data["dot"] < 0:
+                        data["dot"] = 0
+
+                if dot_button.down.is_clicked(0):
+                    data["dot"] -= 1
+                    if data["dot"] < 0:
+                        data["dot"] = 0
+
+                if dot_button.up.is_clicked(0):
+                    data["dot"] += 1
+                    if data["dot"] > 100:
+                        data["dot"] = 100
+
+                if dot_button.jumpUp.is_clicked(0):
+                    data["dot"] += 10
+                    if data["dot"] > 100:
+                        data["dot"] = 100
+
+                #   gap button
+
+                if gap_button.jumpDown.is_clicked(0):
+                    data["gap"] -= 10
+                    if data["gap"] < 0:
+                        data["gap"] = 0
+
+                if gap_button.down.is_clicked(0):
+                    data["gap"] -= 1
+                    if data["gap"] < 0:
+                        data["gap"] = 0
+
+                if gap_button.up.is_clicked(0):
+                    data["gap"] += 1
+                    if data["gap"] > 100:
+                        data["gap"] = 100
+
+                if gap_button.jumpUp.is_clicked(0):
+                    data["gap"] += 10
+                    if data["gap"] > 100:
+                        data["gap"] = 100
+
+                #   thickness button
+
+                if thickness_button.jumpDown.is_clicked(0):
+                    data["thickness"] -= 10
+                    if data["thickness"] < 1:
+                        data["thickness"] = 1
+
+                if thickness_button.down.is_clicked(0):
+                    data["thickness"] -= 1
+                    if data["thickness"] < 1:
+                        data["thickness"] = 1
+
+                if thickness_button.up.is_clicked(0):
+                    data["thickness"] += 1
+                    if data["thickness"] > 100:
+                        data["thickness"] = 100
+
+                if thickness_button.jumpUp.is_clicked(0):
+                    data["thickness"] += 10
+                    if data["thickness"] > 100:
+                        data["thickness"] = 100
+
+                #   apply changes
+
+                with open(os.path.join("Settings", "reticule.json"), 'w') as file:
+                    json.dump(data, file, indent=4)
+
+                #   back button
 
                 if back_button.is_clicked(0):
+                    reticule = ui_objects.Reticule()
                     settings = False
 
-                if reticule_bool:
-                    handle_cool_i(width_button, height_button, dot_button, gap_button, thickness_button)
-                    handle_cool(reticule_back_button)
-                    reticule_display(width_button, height_button, dot_button, gap_button, thickness_button, reticule_back_button)
                 else:
-                    handle_cool(reticule_button, back_button)
-                    settings_display(reticule_button, back_button)
+                    handle_cool_i(width_button, height_button, dot_button, gap_button, thickness_button)
+                    handle_cool(back_button)
+                    settings_display(width_button, height_button, dot_button, gap_button, thickness_button, back_button, data)
             else:
-                handle_cool(play_button, restart_button, settings_button, exit_button)
-                pause_display(play_button, restart_button, settings_button, exit_button)
+
+                #   pause loop
+
+                if play_button.is_clicked(0):
+                    pause = False
+
+                if restart_button.is_clicked(0):
+                    pause, player, enemies, enemy_spawn_cooldown, esc_time, num, entity_lst, sec_lst = reset()
+                    ticks, phase = sec_lst[0], sec_lst[1]
+                    del sec_lst
+                    bullets, rockets, health_packs, glaives, shockwaves = entity_lst[0], entity_lst[1], entity_lst[2], entity_lst[3], entity_lst[4]
+                    del entity_lst
+                    pause = False
+                    settings = False
+
+                if settings_button.is_clicked(0):
+                    settings = True
+
+                if exit_button.is_clicked(0):
+                    pygame.quit()
+                    exit()
+
+                else:
+                    handle_cool(play_button, restart_button, settings_button, exit_button)
+                    pause_display(play_button, restart_button, settings_button, exit_button)
+
         else:
 
             #   gameplay loop
