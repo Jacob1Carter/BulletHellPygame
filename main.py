@@ -275,7 +275,7 @@ def handle_bullets(bullets, player, enemies, covers):
             distance = math.sqrt((bullet.x - player.x) ** 2 + (bullet.y - player.y) ** 2)
             #   if player.x + player.width > bullet.x > player.x and \
             #   player.y + player.height > bullet.y > player.y:
-            if distance <= player.width:
+            if distance <= (player.width/2):
                 player.take_damage(bullet.damage)
                 if bullet not in remove_list:
                     remove_list.append(bullet)
@@ -356,7 +356,7 @@ def handle_shockwaves(shockwaves, enemies):
                 shockwaves.remove(shockwave)
 
 
-def handle_rockets(rockets, player, enemies, bullets):
+def handle_rockets(rockets, player, enemies, bullets, covers):
     x, y = pygame.mouse.get_pos()
     dmg_lst = []
     for rocket in rockets:
@@ -407,6 +407,11 @@ def handle_rockets(rockets, player, enemies, bullets):
                 distance = math.sqrt((enemies[enemy].x - rocket.x) ** 2 + (enemies[enemy].y - rocket.y) ** 2)
                 if distance <= enemies[enemy].width:
                     dmg_lst = rocket.explode(player, enemies)
+
+            for cover in covers:
+                for segment in cover.segments:
+                    if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, rocket.x, rocket.y) <= (rocket.width + rocket.height)/2:
+                        dmg_lst = rocket.explode(player, enemies)
 
             distance = math.sqrt((x - rocket.x) ** 2 + (y - rocket.y) ** 2)
             if distance < rocket.proximity:
@@ -634,12 +639,13 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_act
     pygame.draw.circle(WIN, COLOURS["green"], (x, y), reticule.dot)
 
 
-def pause_display(play_button, restart_button, settings_button, exit_button):
+def pause_display(play_button, restart_button, settings_button, exit_button, player):
     WIN.fill(COLOURS["black"])
 
-    pygame.draw.rect(WIN, play_button.colour, play_button.rect)
-    play_text = FONT2.render(play_button.text, True, play_button.text_colour)
-    WIN.blit(play_text, (play_button.x + ((play_button.width - play_text.get_width()) / 2), (play_button.y + ((play_button.height - play_text.get_height()) / 2))))
+    if player.health > 0 and player.kills < 100:
+        pygame.draw.rect(WIN, play_button.colour, play_button.rect)
+        play_text = FONT2.render(play_button.text, True, play_button.text_colour)
+        WIN.blit(play_text, (play_button.x + ((play_button.width - play_text.get_width()) / 2), (play_button.y + ((play_button.height - play_text.get_height()) / 2))))
 
     pygame.draw.rect(WIN, restart_button.colour, restart_button.rect)
     restart_text = FONT2.render(restart_button.text, True, restart_button.text_colour)
@@ -1145,7 +1151,7 @@ def main():
 
                 else:
                     handle_cool(play_button, restart_button, settings_button, exit_button)
-                    pause_display(play_button, restart_button, settings_button, exit_button)
+                    pause_display(play_button, restart_button, settings_button, exit_button, player)
 
         else:
 
@@ -1175,7 +1181,7 @@ def main():
             pause = handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, glaives, shockwaves)
             handle_bullets(bullets, player, enemies, covers)
             handle_glaives(glaives, player, enemies)
-            handle_rockets(rockets, player, enemies, bullets)
+            handle_rockets(rockets, player, enemies, bullets, covers)
             handle_shockwaves(shockwaves, enemies)
             display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, covers, attribute_bar_ico,
                     progress_bar_ico, health_packs, reticule, phase, ui)
