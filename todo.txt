@@ -19,3 +19,5 @@
 == 9. Make bullets of enemies slower/more visible so that it allows for counter play ==
 
 == 10. Balance damage / make everything more tanky overall ==
+
+== 11. Add cover objects to hide behind because you're a pussy ==
