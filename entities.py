@@ -357,4 +357,30 @@ class Glaive:
         #   self.y += 40
 
 
+class Cover:
+
+    class Segment:
+        def __init__(self, a, b):
+            self.ax = a[0]
+            self.ay = a[-1]
+            self.bx = b[0]
+            self.by = b[-1]
+
+    def __init__(self, position_list, transform):
+
+        self.position_list = []
+        for position in position_list:
+            pos_x, pos_y = position
+            pos_x += transform[0]
+            pos_y += transform[-1]
+            self.position_list.append((pos_x, pos_y))
+
+        self.segments = []
+        for i in range(len(self.position_list) - 1):
+            self.segments.append(self.Segment(self.position_list[i], self.position_list[i+1]))
+
+        self.colour = main.COLOURS["light_grey"]
+        self.thickness = 5
+
+
 #   \entities.py

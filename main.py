@@ -24,8 +24,8 @@ FONT3 = pygame.font.SysFont("Arial", 20)
 
 primary_monitor = get_monitors()[0]
 
-WIDTH = 2560  # 2560    #   primary_monitor.width
-HEIGHT = 1440  # 1440    #    primary_monitor.height
+WIDTH = primary_monitor.width  # 2560    #   primary_monitor.width
+HEIGHT = primary_monitor.height  # 1440    #    primary_monitor.height
 
 WIN = pygame.display.set_mode((WIDTH, HEIGHT), pygame.FULLSCREEN)
 
@@ -418,10 +418,16 @@ def handle_rockets(rockets, player, enemies, bullets):
                 rocket.explode_time -= 1
 
 
-def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, attribute_bar_ico, progress_bar_ico, health_packs, reticule, phase, ui):
+def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, covers, attribute_bar_ico, progress_bar_ico, health_packs, reticule, phase, ui):
     WIN.fill(COLOURS["black"])
     for pack in health_packs:
         WIN.blit(pack.img, pack.rect)
+
+    #   show cover
+
+    for cover in covers:
+        for segment in cover.segments:
+            pygame.draw.line(WIN, cover.colour, (segment.ax, segment.ay), (segment.bx, segment.by), cover.thickness)
 
     #   Show warp point
 
@@ -844,6 +850,9 @@ def main():
     health_packs = []
     glaives = []
     shockwaves = []
+    covers = [
+        entities.Cover([(100, 100), (150, 150), (170, 200), (140, 290)], (100, 0))
+    ]
 
     play_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "PLAY", COLOURS["white"])
     restart_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60, COLOURS["dark_grey"], "RESTART", COLOURS["white"])
@@ -1109,7 +1118,7 @@ def main():
             handle_glaives(glaives, player, enemies)
             handle_rockets(rockets, player, enemies, bullets)
             handle_shockwaves(shockwaves, enemies)
-            display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, attribute_bar_ico,
+            display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, covers, attribute_bar_ico,
                     progress_bar_ico, health_packs, reticule, phase, ui)
 
             if enemy_spawn_cooldown:
