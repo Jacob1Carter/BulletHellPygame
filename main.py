@@ -260,6 +260,15 @@ def handle_bullets(bullets, player, enemies, covers):
 
         bullet.rect.center = (int(bullet.x), int(bullet.y))
 
+        #   check if hit cover
+
+        for cover in covers:
+            for segment in cover.segments:
+                if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width*2:
+                    if bullet not in remove_list:
+                        remove_list.append(bullet)
+                    break
+
         #   check for hit
 
         if bullet.tag == "1":
@@ -280,15 +289,6 @@ def handle_bullets(bullets, player, enemies, covers):
                     if bullet not in remove_list:
                         remove_list.append(bullet)
                     player.heal(3)
-                    break
-
-        #   check if hit cover
-
-        for cover in covers:
-            for segment in cover.segments:
-                if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width*2:
-                    if bullet not in remove_list:
-                        remove_list.append(bullet)
                     break
 
         #   check if out of bounds
@@ -454,7 +454,6 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
         WIN.blit(
             pygame.transform.rotate(bullet.owner.bullet_img, bullet.angle),
             bullet.rect)
-        pygame.draw.circle(WIN, COLOURS["yellow"], (bullet.x, bullet.y), 1)
 
     #   Show player
 
@@ -840,10 +839,6 @@ def main():
     ui = True
     spawn_enemies = True
 
-    player = entities.Player()
-
-    enemies = {}
-
     enemy_spawn_cooldown = False
     esc_time = 0
     spawn_rules = {
@@ -852,8 +847,10 @@ def main():
     }
 
     phase = "1"
-
     num = 1
+
+    player = entities.Player()
+    enemies = {}
 
     bullets = []
     rockets = []
@@ -861,7 +858,7 @@ def main():
     glaives = []
     shockwaves = []
     covers = [
-        entities.Cover([(100, 100), (150, 150), (170, 200), (140, 290), (180, 330)], (700, 300))
+        entities.Cover([(100, 100), (300, 100), (300, 300), (100, 300), (100, 100)], (700, 300))
     ]
 
     play_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "PLAY", COLOURS["white"])
@@ -869,12 +866,12 @@ def main():
     settings_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60, COLOURS["light_grey"], "SETTINGS", COLOURS["white"])
     exit_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"], "EXIT", COLOURS["white"])
 
-    width_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 140, WIDTH // 4, 60, COLOURS["green"], "WIDTH", COLOURS["white"])
-    height_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "HEIGHT", COLOURS["white"])
-    dot_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 10, WIDTH // 4, 60, COLOURS["dark_grey"], "DOT", COLOURS["white"])
-    gap_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 85, WIDTH // 4, 60, COLOURS["light_grey"], "GAP", COLOURS["white"])
-    thickness_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 160, WIDTH // 4, 60, COLOURS["red"], "THICKNESS", COLOURS["white"])
-    back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) + 235, WIDTH // 4, 60, COLOURS["light_grey"], "BACK", COLOURS["white"])
+    width_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 3) / 2), (HEIGHT // 2) - 140, WIDTH // 3, 60, COLOURS["green"], "WIDTH", COLOURS["white"])
+    height_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 3) / 2), (HEIGHT // 2) - 65, WIDTH // 3, 60, COLOURS["green"], "HEIGHT", COLOURS["white"])
+    dot_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 3) / 2), (HEIGHT // 2) + 10, WIDTH // 3, 60, COLOURS["dark_grey"], "DOT", COLOURS["white"])
+    gap_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 3) / 2), (HEIGHT // 2) + 85, WIDTH // 3, 60, COLOURS["light_grey"], "GAP", COLOURS["white"])
+    thickness_button = ui_objects.IntButton((WIDTH // 2) - ((WIDTH // 3) / 2), (HEIGHT // 2) + 160, WIDTH // 3, 60, COLOURS["red"], "THICKNESS", COLOURS["white"])
+    back_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 3) / 2), (HEIGHT // 2) + 235, WIDTH // 3, 60, COLOURS["light_grey"], "BACK", COLOURS["white"])
 
     reticule = ui_objects.Reticule()
 

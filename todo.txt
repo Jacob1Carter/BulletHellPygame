@@ -20,6 +20,4 @@
 
 == 10. Balance damage / make everything more tanky overall ==
 
-== 11. Add cover objects to hide behind because you're a pussy ==
-
-== 12. main() is now utterly visually fucked and needs some work ==
+== 11. main() is now utterly visually fucked and needs some work ==
