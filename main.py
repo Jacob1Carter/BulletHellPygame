@@ -8,7 +8,7 @@ import ui_objects
 import entities
 import json
 from screeninfo import get_monitors
-
+from tools import shortest_distance
 
 pygame.font.init()
 
@@ -247,7 +247,7 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
 #   Called once per frame, this function goes through all bullets currently active and moves them, then checks if it
 #   hits an entity of the opposing team, if this is the case, the bullet deals damage, and is removed. There is one
 #   final check to ensure the bullet does not go out of bounds.
-def handle_bullets(bullets, player, enemies):
+def handle_bullets(bullets, player, enemies, covers):
     remove_list = []
     for bullet in bullets:
 
@@ -280,6 +280,15 @@ def handle_bullets(bullets, player, enemies):
                     if bullet not in remove_list:
                         remove_list.append(bullet)
                     player.heal(3)
+                    break
+
+        #   check if hit cover
+
+        for cover in covers:
+            for segment in cover.segments:
+                if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width*2:
+                    if bullet not in remove_list:
+                        remove_list.append(bullet)
                     break
 
         #   check if out of bounds
@@ -445,11 +454,11 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
         WIN.blit(
             pygame.transform.rotate(bullet.owner.bullet_img, bullet.angle),
             bullet.rect)
+        pygame.draw.circle(WIN, COLOURS["yellow"], (bullet.x, bullet.y), 1)
 
     #   Show player
 
     WIN.blit(pygame.transform.rotate(player.img, player.angle), player.rect)
-    pygame.draw.circle(WIN, COLOURS["pink"], (player.x, player.y), 3)
 
     #   Show enemies
 
@@ -829,6 +838,7 @@ def main():
     pause = True
     settings = False
     ui = True
+    spawn_enemies = True
 
     player = entities.Player()
 
@@ -851,7 +861,7 @@ def main():
     glaives = []
     shockwaves = []
     covers = [
-        entities.Cover([(100, 100), (150, 150), (170, 200), (140, 290)], (100, 0))
+        entities.Cover([(100, 100), (150, 150), (170, 200), (140, 290), (180, 330)], (700, 300))
     ]
 
     play_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "PLAY", COLOURS["white"])
@@ -925,6 +935,10 @@ def main():
                 if event.key == pygame.K_F5:
                     player.health = player.max_health
                     player.invulnerable = not player.invulnerable
+
+                if event.key == pygame.K_F6:
+                    spawn_enemies = not spawn_enemies
+                    enemies = {}
 
         keys_pressed = pygame.key.get_pressed()
         mouse_pressed = pygame.mouse.get_pressed()
@@ -1095,26 +1109,27 @@ def main():
 
             #   enemy spawn
 
-            if len(enemies) < spawn_rules["max"]:
-                if not enemy_spawn_cooldown:
-                    if random.random() > 0.1:
-                        enemies.update({
-                            num:
-                                entities.Enemy(random.randint(30, WIDTH - 30), random.randint(30, HEIGHT - 30), 15, 0, 300, 1)
-                        })
-                    else:
-                        enemies.update({
-                            num:
-                                entities.Enemy(random.randint(30, WIDTH - 30), random.randint(30, HEIGHT - 30), 30, 30, 400, 1.2)
-                        })
-                    num += 1
-                    enemy_spawn_cooldown = True
+            if spawn_enemies:
+                if len(enemies) < spawn_rules["max"]:
+                    if not enemy_spawn_cooldown:
+                        if random.random() > 0.1:
+                            enemies.update({
+                                num:
+                                    entities.Enemy(random.randint(30, WIDTH - 30), random.randint(30, HEIGHT - 30), 15, 0, 300, 1)
+                            })
+                        else:
+                            enemies.update({
+                                num:
+                                    entities.Enemy(random.randint(30, WIDTH - 30), random.randint(30, HEIGHT - 30), 30, 30, 400, 1.2)
+                            })
+                        num += 1
+                        enemy_spawn_cooldown = True
 
             #   entity handling
 
             handle_enemies(enemies, player, bullets, health_packs)
             pause = handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, glaives, shockwaves)
-            handle_bullets(bullets, player, enemies)
+            handle_bullets(bullets, player, enemies, covers)
             handle_glaives(glaives, player, enemies)
             handle_rockets(rockets, player, enemies, bullets)
             handle_shockwaves(shockwaves, enemies)

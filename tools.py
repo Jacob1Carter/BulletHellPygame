@@ -1,5 +1,6 @@
 import os
 import json
+import math
 from PIL import Image
 
 
@@ -79,3 +80,64 @@ def get_json():
         data = json.load(file)
 
     print(data)
+
+
+def check_on_line(start_x, start_y, end_x, end_y, point_x, point_y):
+    # Calculate the slope
+    if start_x != end_x:
+        m = (end_y - start_y) / (end_x - start_x)
+    else:
+        # The line is vertical, so the slope is undefined
+        m = float('inf')
+
+    print(m)
+
+    # Calculate the y-intercept
+    b = start_y - m * start_x
+
+    # Check if the point lies on the line
+    if point_y == m * point_x + b:
+        return True
+    else:
+        return False
+
+
+import math
+
+
+def shortest_distance(start_x, start_y, end_x, end_y, point_x, point_y):
+    # Calculate the length of the line segment
+    line_length = math.dist((start_x, start_y), (end_x, end_y))
+
+    # If the line has zero length, return the distance between the point and the start point
+    if line_length == 0:
+        return math.dist((start_x, start_y), (point_x, point_y))
+
+    # Calculate the normalized direction vector of the line
+    direction_x = (end_x - start_x) / line_length
+    direction_y = (end_y - start_y) / line_length
+
+    # Calculate the vector between the start point and the given point
+    vector_x = point_x - start_x
+    vector_y = point_y - start_y
+
+    # Calculate the dot product of the vector and the direction vector
+    dot_product = vector_x * direction_x + vector_y * direction_y
+
+    # Check if the closest point is beyond the start point of the line
+    if dot_product < 0:
+        closest_point_x = start_x
+        closest_point_y = start_y
+    # Check if the closest point is beyond the end point of the line
+    elif dot_product > line_length:
+        closest_point_x = end_x
+        closest_point_y = end_y
+    else:
+        # Calculate the closest point on the line to the given point
+        closest_point_x = start_x + dot_product * direction_x
+        closest_point_y = start_y + dot_product * direction_y
+
+    # Calculate the distance between the closest point and the given point
+    distance = math.dist((closest_point_x, closest_point_y), (point_x, point_y))
+
+    return distance
