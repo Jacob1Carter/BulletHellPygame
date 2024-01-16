@@ -264,7 +264,7 @@ def handle_bullets(bullets, player, enemies, covers):
 
         for cover in covers:
             for segment in cover.segments:
-                if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width*2:
+                if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width * 2:
                     if bullet not in remove_list:
                         remove_list.append(bullet)
                     break
@@ -349,10 +349,10 @@ def handle_shockwaves(shockwaves, enemies):
         shockwave.damage = (shockwave.a * (math.sqrt(shockwave.thickness))) + (shockwave.b * shockwave.thickness) + shockwave.c
 
         if WIDTH >= HEIGHT:
-            if shockwave.radius > WIDTH*1.2:
+            if shockwave.radius > WIDTH * 1.2:
                 shockwaves.remove(shockwave)
         else:
-            if shockwave.radius > HEIGHT*1.2:
+            if shockwave.radius > HEIGHT * 1.2:
                 shockwaves.remove(shockwave)
 
 
@@ -858,7 +858,54 @@ def main():
     glaives = []
     shockwaves = []
     covers = [
-        entities.Cover([(100, 100), (300, 100), (300, 300), (100, 300), (100, 100)], (700, 300))
+        entities.Cover(
+            [
+                (
+                    WIDTH * (1 / 4),
+                    HEIGHT * (1 / 3),
+                ),
+                (
+                    WIDTH * (1 / 4),
+                    HEIGHT - (HEIGHT * (1 / 3)),
+                ),
+            ]
+        ),
+        entities.Cover(
+            [
+                (
+                    WIDTH - (WIDTH * (1 / 4)),
+                    HEIGHT * (1 / 3),
+                ),
+                (
+                    WIDTH - (WIDTH * (1 / 4)),
+                    HEIGHT - (HEIGHT * (1 / 3)),
+                ),
+            ]
+        ),
+        entities.Cover(
+            [
+                (
+                    WIDTH * (3 / 8),
+                    HEIGHT * (1 / 4),
+                ),
+                (
+                    WIDTH - (WIDTH * (3 / 8)),
+                    HEIGHT * (1 / 4),
+                ),
+            ]
+        ),
+        entities.Cover(
+            [
+                (
+                    WIDTH * (3 / 8),
+                    HEIGHT - (HEIGHT * (1 / 4)),
+                ),
+                (
+                    WIDTH - (WIDTH * (3 / 8)),
+                    HEIGHT - (HEIGHT * (1 / 4)),
+                ),
+            ]
+        ),
     ]
 
     play_button = ui_objects.Button((WIDTH // 2) - ((WIDTH // 4) / 2), (HEIGHT // 2) - 65, WIDTH // 4, 60, COLOURS["green"], "PLAY", COLOURS["white"])
@@ -954,17 +1001,17 @@ def main():
                     data["width"] -= 10
                     if data["width"] < 0:
                         data["width"] = 0
-                
+
                 if width_button.down.is_clicked(0):
                     data["width"] -= 1
                     if data["width"] < 0:
                         data["width"] = 0
-                
+
                 if width_button.up.is_clicked(0):
                     data["width"] += 1
                     if data["width"] > 100:
                         data["width"] = 100
-                
+
                 if width_button.jumpUp.is_clicked(0):
                     data["width"] += 10
                     if data["width"] > 100:

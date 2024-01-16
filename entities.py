@@ -366,7 +366,7 @@ class Cover:
             self.bx = b[0]
             self.by = b[-1]
 
-    def __init__(self, position_list, transform):
+    def __init__(self, position_list, transform=(0, 0)):
 
         self.position_list = []
         for position in position_list:
