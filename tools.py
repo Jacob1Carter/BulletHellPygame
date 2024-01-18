@@ -151,12 +151,4 @@ def calculate_angle(x1, y1, x2, y2):
     angle_degrees = (angle_degrees + 360) % 360
 
     # If the angle is greater than 90 degrees, subtract it from 180
-    if angle_degrees > 90:
-        angle_degrees = 180 - angle_degrees
-
-    if angle_degrees < 0:
-        angle_degrees = 180 + angle_degrees
-
     return angle_degrees
-
-

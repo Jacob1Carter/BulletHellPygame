@@ -89,6 +89,8 @@ class Bullet:
         self.hit_marker_time = self.hit_marker_time_max
         self.hit_marker_img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "hitmarker.png")), (self.hm_width, self.hm_height))
 
+        #print("b", self.angle)
+
 
 class HealthPack:
 

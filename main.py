@@ -250,7 +250,6 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
 def handle_bullets(bullets, player, enemies, covers):
     remove_list = []
     for bullet in bullets:
-        #print(bullet.angle)
 
         #   move
         if not bullet.hit_marker:
@@ -274,7 +273,7 @@ def handle_bullets(bullets, player, enemies, covers):
                     for segment in cover.segments:
                         if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width * 2:
                             if bullet.tag == "0":
-                                print(calculate_angle(segment.ax, segment.ay, segment.bx, segment.by))
+                                print(bullet.angle - calculate_angle(segment.ax, segment.ay, segment.bx, segment.by))
                                 bullet.angle += 180
                                 if bullet.angle >= 360:
                                     bullet.angle -= 360
@@ -288,7 +287,6 @@ def handle_bullets(bullets, player, enemies, covers):
                                 break
 
             #   check for hit
-            print(bullet.angle)
             if bullet.tag == "1" or bullet.tag == "2":
                 distance = math.sqrt((bullet.x - player.x) ** 2 + (bullet.y - player.y) ** 2)
                 #   if player.x + player.width > bullet.x > player.x and \
@@ -465,6 +463,8 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
     for cover in covers:
         for segment in cover.segments:
             pygame.draw.line(WIN, cover.colour, (segment.ax, segment.ay), (segment.bx, segment.by), cover.thickness)
+        pygame.draw.circle(WIN, COLOURS["orange"], (cover.segments[0].ax, cover.segments[0].ay), 5)
+        pygame.draw.circle(WIN, COLOURS["pink"], (cover.segments[0].bx, cover.segments[0].by), 5)
 
     #   Show warp point
 
@@ -979,12 +979,12 @@ def main():
             "ricochet",
             [
                 (
-                    WIDTH - (WIDTH * (1 / 4)),
-                    HEIGHT - (HEIGHT * (1 / 3)),
-                ),
-                (
                     WIDTH - (WIDTH * (3 / 8)),
                     HEIGHT - (HEIGHT * (1 / 4)),
+                ),
+                (
+                    WIDTH - (WIDTH * (1 / 4)),
+                    HEIGHT - (HEIGHT * (1 / 3)),
                 ),
             ],
             (80, 120)
