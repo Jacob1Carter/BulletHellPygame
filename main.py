@@ -8,7 +8,7 @@ import ui_objects
 import entities
 import json
 from screeninfo import get_monitors
-from tools import shortest_distance
+from tools import shortest_distance, calculate_angle
 
 pygame.font.init()
 
@@ -250,6 +250,7 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
 def handle_bullets(bullets, player, enemies, covers):
     remove_list = []
     for bullet in bullets:
+        #print(bullet.angle)
 
         #   move
         if not bullet.hit_marker:
@@ -263,27 +264,44 @@ def handle_bullets(bullets, player, enemies, covers):
             #   check if hit cover
 
             for cover in covers:
-                for segment in cover.segments:
-                    if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width * 2:
-                        if bullet not in remove_list:
-                            remove_list.append(bullet)
-                        break
+                if cover.type == "shield" or cover.type == "wall":
+                    for segment in cover.segments:
+                        if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width * 2:
+                            if bullet not in remove_list:
+                                remove_list.append(bullet)
+                            break
+                elif cover.type == "ricochet":
+                    for segment in cover.segments:
+                        if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width * 2:
+                            if bullet.tag == "0":
+                                print(calculate_angle(segment.ax, segment.ay, segment.bx, segment.by))
+                                bullet.angle += 180
+                                if bullet.angle >= 360:
+                                    bullet.angle -= 360
+                                bullet.img = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "Bullets", "Bullet_yellow.png")), (bullet.width, bullet.height))
+                                bullet.tag = "2"
+                                bullet.damage *= 100
+                                bullet.vel *= 3
+                            else:
+                                if bullet not in remove_list:
+                                    remove_list.append(bullet)
+                                break
 
             #   check for hit
-
-            if bullet.tag == "1":
+            print(bullet.angle)
+            if bullet.tag == "1" or bullet.tag == "2":
                 distance = math.sqrt((bullet.x - player.x) ** 2 + (bullet.y - player.y) ** 2)
                 #   if player.x + player.width > bullet.x > player.x and \
                 #   player.y + player.height > bullet.y > player.y:
                 if distance <= (player.width/2):
                     player.take_damage(bullet.damage)
                     bullet.hit_marker = True
-            elif bullet.tag == "0":
+            if bullet.tag == "0" or bullet.tag == "2":
                 for enemy in enemies:
                     distance = math.sqrt((bullet.x - enemies[enemy].x) ** 2 + (bullet.y - enemies[enemy].y) ** 2)
                     #   if enemies[enemy].x + enemies[enemy].width > bullet.x > enemies[enemy].x and \
                     #   enemies[enemy].y + enemies[enemy].height > bullet.y > enemies[enemy].y:
-                    if distance <= enemies[enemy].width:
+                    if distance <= (enemies[enemy].width * (2/3)):
                         enemies[enemy].take_damage(bullet.damage)
                         bullet.hit_marker = True
                         player.heal(3)
@@ -463,7 +481,7 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
     for bullet in bullets:
         if not bullet.hit_marker:
             WIN.blit(
-                pygame.transform.rotate(bullet.owner.bullet_img, bullet.angle),
+                pygame.transform.rotate(bullet.img, bullet.angle),
                 bullet.rect)
 
     #   Show player
@@ -877,6 +895,7 @@ def main():
     shockwaves = []
     covers = [
         entities.Cover(
+            "shield",
             [
                 (
                     WIDTH * (1 / 4),
@@ -889,6 +908,7 @@ def main():
             ]
         ),
         entities.Cover(
+            "shield",
             [
                 (
                     WIDTH - (WIDTH * (1 / 4)),
@@ -901,6 +921,7 @@ def main():
             ]
         ),
         entities.Cover(
+            "shield",
             [
                 (
                     WIDTH * (3 / 8),
@@ -913,6 +934,7 @@ def main():
             ]
         ),
         entities.Cover(
+            "shield",
             [
                 (
                     WIDTH * (3 / 8),
@@ -923,6 +945,63 @@ def main():
                     HEIGHT - (HEIGHT * (1 / 4)),
                 ),
             ]
+        ),
+
+        entities.Cover(
+            "ricochet",
+            [
+                (
+                    WIDTH * (1 / 4),
+                    HEIGHT * (1 / 3),
+                ),
+                (
+                    WIDTH * (3 / 8),
+                    HEIGHT * (1 / 4),
+                ),
+            ],
+            (-80, -120)
+        ),
+        entities.Cover(
+            "ricochet",
+            [
+                (
+                    WIDTH - (WIDTH * (3 / 8)),
+                    HEIGHT * (1 / 4),
+                ),
+                (
+                    WIDTH - (WIDTH * (1 / 4)),
+                    HEIGHT * (1 / 3),
+                ),
+            ],
+            (80, -120)
+        ),
+        entities.Cover(
+            "ricochet",
+            [
+                (
+                    WIDTH - (WIDTH * (1 / 4)),
+                    HEIGHT - (HEIGHT * (1 / 3)),
+                ),
+                (
+                    WIDTH - (WIDTH * (3 / 8)),
+                    HEIGHT - (HEIGHT * (1 / 4)),
+                ),
+            ],
+            (80, 120)
+        ),
+        entities.Cover(
+            "ricochet",
+            [
+                (
+                    WIDTH * (1 / 4),
+                    HEIGHT - (HEIGHT * (1 / 3)),
+                ),
+                (
+                    WIDTH * (3 / 8),
+                    HEIGHT - (HEIGHT * (1 / 4)),
+                ),
+            ],
+            (-80, 120)
         ),
     ]
 

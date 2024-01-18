@@ -374,7 +374,8 @@ class Cover:
             self.bx = b[0]
             self.by = b[-1]
 
-    def __init__(self, position_list, transform=(0, 0)):
+    def __init__(self, type, position_list, transform=(0, 0)):
+        self.type = type
 
         self.position_list = []
         for position in position_list:
@@ -387,7 +388,12 @@ class Cover:
         for i in range(len(self.position_list) - 1):
             self.segments.append(self.Segment(self.position_list[i], self.position_list[i+1]))
 
-        self.colour = main.COLOURS["light_grey"]
+        if self.type == "wall":
+            self.colour = main.COLOURS["light_grey"]
+        elif self.type == "shield":
+            self.colour = main.COLOURS["blue"]
+        elif self.type == "ricochet":
+            self.colour = main.COLOURS["red"]
         self.thickness = 5
 
 

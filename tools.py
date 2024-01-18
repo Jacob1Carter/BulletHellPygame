@@ -102,9 +102,6 @@ def check_on_line(start_x, start_y, end_x, end_y, point_x, point_y):
         return False
 
 
-import math
-
-
 def shortest_distance(start_x, start_y, end_x, end_y, point_x, point_y):
     # Calculate the length of the line segment
     line_length = math.dist((start_x, start_y), (end_x, end_y))
@@ -141,3 +138,25 @@ def shortest_distance(start_x, start_y, end_x, end_y, point_x, point_y):
     distance = math.dist((closest_point_x, closest_point_y), (point_x, point_y))
 
     return distance
+
+
+def calculate_angle(x1, y1, x2, y2):
+    # Calculate the angle in radians
+    angle_radians = math.atan2(y2 - y1, x2 - x1)
+
+    # Convert the angle to degrees
+    angle_degrees = math.degrees(angle_radians)
+
+    # Ensure the angle is between 0 and 180 degrees
+    angle_degrees = (angle_degrees + 360) % 360
+
+    # If the angle is greater than 90 degrees, subtract it from 180
+    if angle_degrees > 90:
+        angle_degrees = 180 - angle_degrees
+
+    if angle_degrees < 0:
+        angle_degrees = 180 + angle_degrees
+
+    return angle_degrees
+
+
