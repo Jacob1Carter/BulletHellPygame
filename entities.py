@@ -81,6 +81,14 @@ class Bullet:
         self.angle = owner.angle
         self.vel = 3000 / main.FPS
 
+        self.hit_marker = False
+        self.hm_width = 11
+        self.hm_height = 11
+        self.hm_rect = main.pygame.Rect(self.x, self.y, self.hm_width, self.hm_height)
+        self.hit_marker_time_max = 0.2 * main.FPS
+        self.hit_marker_time = self.hit_marker_time_max
+        self.hit_marker_img = main.pygame.transform.scale(main.pygame.image.load(main.os.path.join("Assets", "hitmarker.png")), (self.hm_width, self.hm_height))
+
 
 class HealthPack:
 

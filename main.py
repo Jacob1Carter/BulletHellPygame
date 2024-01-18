@@ -252,50 +252,55 @@ def handle_bullets(bullets, player, enemies, covers):
     for bullet in bullets:
 
         #   move
+        if not bullet.hit_marker:
+            bullet.x += bullet.vel * math.sin(
+                math.radians(abs(bullet.angle - 450) - 90))
+            bullet.y -= bullet.vel * math.cos(
+                math.radians(abs(bullet.angle - 450) - 90))
 
-        bullet.x += bullet.vel * math.sin(
-            math.radians(abs(bullet.angle - 450) - 90))
-        bullet.y -= bullet.vel * math.cos(
-            math.radians(abs(bullet.angle - 450) - 90))
+            bullet.rect.center = (int(bullet.x), int(bullet.y))
 
-        bullet.rect.center = (int(bullet.x), int(bullet.y))
+            #   check if hit cover
 
-        #   check if hit cover
+            for cover in covers:
+                for segment in cover.segments:
+                    if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width * 2:
+                        if bullet not in remove_list:
+                            remove_list.append(bullet)
+                        break
 
-        for cover in covers:
-            for segment in cover.segments:
-                if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width * 2:
-                    if bullet not in remove_list:
-                        remove_list.append(bullet)
-                    break
+            #   check for hit
 
-        #   check for hit
+            if bullet.tag == "1":
+                distance = math.sqrt((bullet.x - player.x) ** 2 + (bullet.y - player.y) ** 2)
+                #   if player.x + player.width > bullet.x > player.x and \
+                #   player.y + player.height > bullet.y > player.y:
+                if distance <= (player.width/2):
+                    player.take_damage(bullet.damage)
+                    bullet.hit_marker = True
+            elif bullet.tag == "0":
+                for enemy in enemies:
+                    distance = math.sqrt((bullet.x - enemies[enemy].x) ** 2 + (bullet.y - enemies[enemy].y) ** 2)
+                    #   if enemies[enemy].x + enemies[enemy].width > bullet.x > enemies[enemy].x and \
+                    #   enemies[enemy].y + enemies[enemy].height > bullet.y > enemies[enemy].y:
+                    if distance <= enemies[enemy].width:
+                        enemies[enemy].take_damage(bullet.damage)
+                        bullet.hit_marker = True
+                        player.heal(3)
+                        break
 
-        if bullet.tag == "1":
-            distance = math.sqrt((bullet.x - player.x) ** 2 + (bullet.y - player.y) ** 2)
-            #   if player.x + player.width > bullet.x > player.x and \
-            #   player.y + player.height > bullet.y > player.y:
-            if distance <= (player.width/2):
-                player.take_damage(bullet.damage)
+            #   check if out of bounds
+
+            if bullet.x < 0 or bullet.x > WIDTH or bullet.y < 0 or bullet.y > HEIGHT:
                 if bullet not in remove_list:
                     remove_list.append(bullet)
-        elif bullet.tag == "0":
-            for enemy in enemies:
-                distance = math.sqrt((bullet.x - enemies[enemy].x) ** 2 + (bullet.y - enemies[enemy].y) ** 2)
-                #   if enemies[enemy].x + enemies[enemy].width > bullet.x > enemies[enemy].x and \
-                #   enemies[enemy].y + enemies[enemy].height > bullet.y > enemies[enemy].y:
-                if distance <= enemies[enemy].width:
-                    enemies[enemy].take_damage(bullet.damage)
-                    if bullet not in remove_list:
-                        remove_list.append(bullet)
-                    player.heal(3)
-                    break
 
-        #   check if out of bounds
-
-        if bullet.x < 0 or bullet.x > WIDTH or bullet.y < 0 or bullet.y > HEIGHT:
-            if bullet not in remove_list:
-                remove_list.append(bullet)
+        else:
+            if bullet.hit_marker_time > 0:
+                bullet.hit_marker_time -= 1
+            else:
+                if bullet not in remove_list:
+                    remove_list.append(bullet)
 
     #   remove bullets
 
@@ -456,9 +461,10 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
     #   Show bullets
 
     for bullet in bullets:
-        WIN.blit(
-            pygame.transform.rotate(bullet.owner.bullet_img, bullet.angle),
-            bullet.rect)
+        if not bullet.hit_marker:
+            WIN.blit(
+                pygame.transform.rotate(bullet.owner.bullet_img, bullet.angle),
+                bullet.rect)
 
     #   Show player
 
@@ -489,12 +495,12 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
     #   Show UI
 
     if ui:
-        display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase)
+        display_ui(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase)
 
     pygame.display.update()
 
 
-def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase):
+def display_ui(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase):
     for enemy in enemies:
         pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(
             (enemies[enemy].x - (enemies[enemy].width / 2)),
@@ -510,6 +516,12 @@ def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_act
                 ((enemies[enemy].armour / enemies[enemy].max_armour) * enemies[enemy].width),
                 3
             ))
+
+    #   Show hit markers
+
+    #   for bullet in bullets:
+    #       if bullet.hit_marker:
+    #           WIN.blit(bullet.hit_marker_img, bullet.hm_rect)
 
     #   display cooldowns
 
