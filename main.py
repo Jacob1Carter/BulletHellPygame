@@ -434,7 +434,7 @@ def handle_rockets(rockets, player, enemies, bullets, covers):
 
             for cover in covers:
                 for segment in cover.segments:
-                    if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, rocket.x, rocket.y) <= rocket.width:
+                    if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, rocket.x, rocket.y) <= rocket.width * (2 / 3):
                         dmg_lst = rocket.explode(player, enemies)
 
             distance = math.sqrt((x - rocket.x) ** 2 + (y - rocket.y) ** 2)
@@ -512,7 +512,7 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
             pygame.draw.circle(WIN, COLOURS["orange"], (rocket.x, rocket.y), rocket.explosion_radius)
         else:
             WIN.blit(pygame.transform.rotate(rocket.imgs[rocket.img_ind], rocket.angle), rocket.rect)
-            pygame.draw.circle(WIN, COLOURS["pink"], (rocket.x, rocket.y), rocket.width)
+            #pygame.draw.circle(WIN, COLOURS["pink"], (rocket.x, rocket.y), rocket.width * (2 / 3))
 
     #   Show UI
 

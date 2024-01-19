@@ -21,3 +21,19 @@
 == 10. Balance damage / make everything more tanky overall ==
 
 == 11. main() is now utterly visually fucked and needs some work ==
+
+
+pygame 2.5.2 (SDL 2.28.3, Python 3.9.10)
+Hello from the pygame community. https://www.pygame.org/contribute.html
+Traceback (most recent call last):
+  File "C:\Users\jacobcarter\PycharmProjects\BulletHellPygame\main.py", line 1339, in <module>
+    main()
+  File "C:\Users\jacobcarter\PycharmProjects\BulletHellPygame\main.py", line 1281, in main
+    display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, covers, attribute_bar_ico,
+  File "C:\Users\jacobcarter\PycharmProjects\BulletHellPygame\main.py", line 520, in display
+    display_ui(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase)
+  File "C:\Users\jacobcarter\PycharmProjects\BulletHellPygame\main.py", line 590, in display_ui
+    WIN.blit(r_icos[player.r_ico_i], (10, 50))
+IndexError: list index out of range
+
+Process finished with exit code 1
