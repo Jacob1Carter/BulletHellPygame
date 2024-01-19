@@ -273,8 +273,9 @@ def handle_bullets(bullets, player, enemies, covers):
                     for segment in cover.segments:
                         if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width * 2:
                             if bullet.tag == "0":
-                                print(bullet.angle - calculate_angle(segment.ax, segment.ay, segment.bx, segment.by))
-                                bullet.angle += 180
+                                line_angle = calculate_angle(segment.ax, segment.ay, segment.bx, segment.by)
+                                #   bullet.angle += 180
+                                bullet.angle = bullet.angle - line_angle
                                 if bullet.angle >= 360:
                                     bullet.angle -= 360
                                 bullet.img = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "Bullets", "Bullet_yellow.png")), (bullet.width, bullet.height))
@@ -534,12 +535,12 @@ def display_ui(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos,
                 ((enemies[enemy].armour / enemies[enemy].max_armour) * enemies[enemy].width),
                 3
             ))
-
     #   Show hit markers
 
-    #   for bullet in bullets:
-    #       if bullet.hit_marker:
-    #           WIN.blit(bullet.hit_marker_img, bullet.hm_rect)
+    for bullet in bullets:
+        pygame.draw.circle(WIN, COLOURS["pink"], (bullet.x, bullet.y), 5)
+        if bullet.hit_marker:
+            WIN.blit(bullet.hit_marker_img, bullet.hm_rect)
 
     #   display cooldowns
 
@@ -951,12 +952,12 @@ def main():
             "ricochet",
             [
                 (
-                    WIDTH * (1 / 4),
-                    HEIGHT * (1 / 3),
-                ),
-                (
                     WIDTH * (3 / 8),
                     HEIGHT * (1 / 4),
+                ),
+                (
+                    WIDTH * (1 / 4),
+                    HEIGHT * (1 / 3),
                 ),
             ],
             (-80, -120)
