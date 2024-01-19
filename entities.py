@@ -81,7 +81,7 @@ class Bullet:
         self.angle = owner.angle
         self.vel = 3000 / main.FPS
 
-        self.ricochet_cool_max = 0.1 * main.FPS
+        self.ricochet_cool_max = 0.02 * main.FPS
         self.ricochet_cool = self.ricochet_cool_max
 
         self.hit_marker = False

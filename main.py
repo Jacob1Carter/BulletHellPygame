@@ -272,7 +272,7 @@ def handle_bullets(bullets, player, enemies, covers):
                 elif cover.type == "ricochet":
                     for segment in cover.segments:
                         if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, bullet.x, bullet.y) <= bullet.width * 2:
-                            if bullet.tag == "0":
+                            if bullet.tag == "0" and bullet.ricochet_cool == bullet.ricochet_cool_max:
                                 line_angle = calculate_angle(segment.ax, segment.ay, segment.bx, segment.by)
                                 #   bullet.angle += 180
                                 bullet.angle = bullet.angle - line_angle
@@ -280,8 +280,9 @@ def handle_bullets(bullets, player, enemies, covers):
                                     bullet.angle -= 360
                                 bullet.img = pygame.transform.scale(pygame.image.load(os.path.join("Assets", "Bullets", "Bullet_yellow.png")), (bullet.width, bullet.height))
                                 bullet.tag = "2"
-                                bullet.damage *= 100
-                                bullet.vel *= 3
+                                bullet.damage *= 2
+                                bullet.vel *= 1.5
+                                bullet.ricochet_cool = 0
                             else:
                                 if bullet not in remove_list:
                                     remove_list.append(bullet)
@@ -290,16 +291,12 @@ def handle_bullets(bullets, player, enemies, covers):
             #   check for hit
             if bullet.tag == "1" or bullet.tag == "2":
                 distance = math.sqrt((bullet.x - player.x) ** 2 + (bullet.y - player.y) ** 2)
-                #   if player.x + player.width > bullet.x > player.x and \
-                #   player.y + player.height > bullet.y > player.y:
                 if distance <= (player.width/2):
                     player.take_damage(bullet.damage)
                     bullet.hit_marker = True
             if bullet.tag == "0" or bullet.tag == "2":
                 for enemy in enemies:
                     distance = math.sqrt((bullet.x - enemies[enemy].x) ** 2 + (bullet.y - enemies[enemy].y) ** 2)
-                    #   if enemies[enemy].x + enemies[enemy].width > bullet.x > enemies[enemy].x and \
-                    #   enemies[enemy].y + enemies[enemy].height > bullet.y > enemies[enemy].y:
                     if distance <= (enemies[enemy].width * (2/3)):
                         enemies[enemy].take_damage(bullet.damage)
                         bullet.hit_marker = True
@@ -311,6 +308,11 @@ def handle_bullets(bullets, player, enemies, covers):
             if bullet.x < 0 or bullet.x > WIDTH or bullet.y < 0 or bullet.y > HEIGHT:
                 if bullet not in remove_list:
                     remove_list.append(bullet)
+
+            if bullet.ricochet_cool < bullet.ricochet_cool_max:
+                bullet.ricochet_cool += 1
+            if bullet.ricochet_cool > bullet.ricochet_cool_max:
+                bullet.ricochet_cool = bullet.ricochet_cool_max
 
         else:
             if bullet.hit_marker_time > 0:
@@ -421,7 +423,7 @@ def handle_rockets(rockets, player, enemies, bullets, covers):
 
             for bullet in bullets:
                 distance = math.sqrt((bullet.x - rocket.x) ** 2 + (bullet.y - rocket.y) ** 2)
-                if distance < ((rocket.width + rocket.height) / 2):
+                if distance < (rocket.width + rocket.height)/2:
                     dmg_lst = rocket.take_damage(bullet.damage, player, enemies)
                     bullets.remove(bullet)
 
@@ -432,7 +434,7 @@ def handle_rockets(rockets, player, enemies, bullets, covers):
 
             for cover in covers:
                 for segment in cover.segments:
-                    if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, rocket.x, rocket.y) <= (rocket.width + rocket.height)/2:
+                    if shortest_distance(segment.ax, segment.ay, segment.bx, segment.by, rocket.x, rocket.y) <= rocket.width:
                         dmg_lst = rocket.explode(player, enemies)
 
             distance = math.sqrt((x - rocket.x) ** 2 + (y - rocket.y) ** 2)
@@ -510,6 +512,7 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
             pygame.draw.circle(WIN, COLOURS["orange"], (rocket.x, rocket.y), rocket.explosion_radius)
         else:
             WIN.blit(pygame.transform.rotate(rocket.imgs[rocket.img_ind], rocket.angle), rocket.rect)
+            pygame.draw.circle(WIN, COLOURS["pink"], (rocket.x, rocket.y), rocket.width)
 
     #   Show UI
 
