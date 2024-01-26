@@ -126,16 +126,17 @@ def handle_enemies(enemies, player, bullets, health_packs):
 def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_packs, glaives, shockwaves):
     x, y = pygame.mouse.get_pos()
 
-    #   move
+    #   zoom
 
-    if keys_pressed[pygame.K_a] and player.x - player.vel > 0:
-        player.x -= player.vel
-    if keys_pressed[pygame.K_d] and player.x + player.vel + player.width < WIDTH:
-        player.x += player.vel
-    if keys_pressed[pygame.K_w] and player.y - player.vel > 0:
-        player.y -= player.vel
-    if keys_pressed[pygame.K_s] and player.y + player.vel + player.height < HEIGHT:
-        player.y += player.vel
+    if player.zoom_cooldown > 0:
+        player.zoom_cooldown -= 1
+    else:
+        if keys_pressed[pygame.K_SPACE]:
+            player.zoom = True
+        else:
+            player.zoom = False
+            if player.zoom_current < player.zoom_max:
+                player.zoom_current += player.zoom_cooldown_rate
 
     #   turn
 
@@ -153,11 +154,36 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
     rot_image = pygame.transform.rotate(player.img, player.angle)
     player.rect = rot_image.get_rect(center=(player.x, player.y))
 
+    if player.zoom:
+        #   move (zoom)
+        player.x += player.zoom_vel * math.sin(
+            math.radians(abs(player.angle - 450) - 90))
+        player.y -= player.zoom_vel * math.cos(
+            math.radians(abs(player.angle - 450) - 90))
+
+        if player.zoom_current > 0:
+            player.zoom_current -= 1
+        else:
+            player.zoom = False
+            player.zoom_cooldown = player.zoom_cool
+
+    else:
+        #   move (no zoom)
+
+        if keys_pressed[pygame.K_a] and player.x - player.vel > 0:
+            player.x -= player.vel
+        if keys_pressed[pygame.K_d] and player.x + player.vel + player.width < WIDTH:
+            player.x += player.vel
+        if keys_pressed[pygame.K_w] and player.y - player.vel > 0:
+            player.y -= player.vel
+        if keys_pressed[pygame.K_s] and player.y + player.vel + player.height < HEIGHT:
+            player.y += player.vel
+
     #   dash
 
     if player.active_cooldown < player.cooldown:
         player.active_cooldown += 1
-    elif mouse_pressed[2]:
+    elif mouse_pressed[2] and not player.zoom:
         player.dash(x, y)
         player.active_cooldown = 0
         player.cooldown_f = 0
@@ -172,14 +198,14 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
 
     if player.shoot_time > 0:
         player.shoot_time -= 1
-    elif mouse_pressed[0] and player.overheat < player.max_overheat:
+    elif mouse_pressed[0] and player.overheat < player.max_overheat and not player.zoom:
         bullets.append(player.shoot(bullets))
 
     #   shoot rocket
 
     if player.r_active_cooldown < player.r_cooldown:
         player.r_active_cooldown += 1
-    elif keys_pressed[pygame.K_e]:
+    elif keys_pressed[pygame.K_e] and not player.zoom:
         rockets.append(player.shoot_rocket())
         player.r_active_cooldown = 0
         player.r_cooldown_f = 0
@@ -189,7 +215,7 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
 
     if player.glaive_active_cooldown < player.glaive_cooldown:
         player.glaive_active_cooldown += 1
-    elif keys_pressed[pygame.K_q]:
+    elif keys_pressed[pygame.K_q] and not player.zoom:
         glaives.append(player.glaive())
         player.glaive_active_cooldown = 0
         player.glaive_cooldown_f = 0
@@ -199,7 +225,7 @@ def handle_player(player, keys_pressed, mouse_pressed, bullets, rockets, health_
 
     if player.warp_active_cooldown < player.warp_cooldown:
         player.warp_active_cooldown += 1
-    elif keys_pressed[pygame.K_f]:
+    elif keys_pressed[pygame.K_f] and not player.zoom:
         if len(player.warps) == 0:
             player.warps.append(player.place_warp())
         else:
@@ -466,8 +492,8 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
     for cover in covers:
         for segment in cover.segments:
             pygame.draw.line(WIN, cover.colour, (segment.ax, segment.ay), (segment.bx, segment.by), cover.thickness)
-        pygame.draw.circle(WIN, COLOURS["orange"], (cover.segments[0].ax, cover.segments[0].ay), 5)
-        pygame.draw.circle(WIN, COLOURS["pink"], (cover.segments[0].bx, cover.segments[0].by), 5)
+        #   pygame.draw.circle(WIN, COLOURS["orange"], (cover.segments[0].ax, cover.segments[0].ay), 5)
+        #   pygame.draw.circle(WIN, COLOURS["pink"], (cover.segments[0].bx, cover.segments[0].by), 5)
 
     #   Show warp point
 
@@ -512,17 +538,17 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
             pygame.draw.circle(WIN, COLOURS["orange"], (rocket.x, rocket.y), rocket.explosion_radius)
         else:
             WIN.blit(pygame.transform.rotate(rocket.imgs[rocket.img_ind], rocket.angle), rocket.rect)
-            #pygame.draw.circle(WIN, COLOURS["pink"], (rocket.x, rocket.y), rocket.width * (2 / 3))
+            #   pygame.draw.circle(WIN, COLOURS["pink"], (rocket.x, rocket.y), rocket.width * (2 / 3))
 
     #   Show UI
 
     if ui:
-        display_ui(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase)
+        display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase)
 
     pygame.display.update()
 
 
-def display_ui(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase):
+def display_ui(player, enemies, dashes, r_icos, glaive_icos, warp_icos, warp_active_ico, attribute_bar_ico, progress_bar_ico, reticule, phase):
     for enemy in enemies:
         pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(
             (enemies[enemy].x - (enemies[enemy].width / 2)),
@@ -540,10 +566,12 @@ def display_ui(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos,
             ))
     #   Show hit markers
 
+    """
     for bullet in bullets:
         pygame.draw.circle(WIN, COLOURS["pink"], (bullet.x, bullet.y), 5)
         if bullet.hit_marker:
             WIN.blit(bullet.hit_marker_img, bullet.hm_rect)
+    """
 
     #   display cooldowns
 
@@ -615,6 +643,15 @@ def display_ui(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos,
         elif (player.health / player.max_health) * 200 > 7:
             pygame.draw.rect(WIN, COLOURS["red"], pygame.Rect(22, HEIGHT - 9, (player.health / player.max_health) * 200, 3))
         WIN.blit(attribute_bar_ico, (10, HEIGHT - 10))
+
+    #   Player zoom bar
+
+    pygame.draw.rect(WIN, COLOURS["blue"], pygame.Rect(((WIDTH/2)-(210/2))+5, HEIGHT - 8, (player.zoom_current / player.zoom_max) * 200, 1))
+    if (player.zoom_current / player.zoom_max) * 200 > 193:
+        pygame.draw.rect(WIN, COLOURS["blue"], pygame.Rect(((WIDTH/2)-(210/2))+12, HEIGHT - 9, 193, 3))
+    elif (player.zoom_current / player.zoom_max) * 200 > 7:
+        pygame.draw.rect(WIN, COLOURS["blue"], pygame.Rect(((WIDTH/2)-(210/2))+12, HEIGHT - 9, (player.zoom_current / player.zoom_max) * 200, 3))
+    WIN.blit(attribute_bar_ico, (((WIDTH/2)-(210/2)), HEIGHT - 10))
 
     #   Player ammo bar
 
@@ -816,10 +853,6 @@ def settings_display(width_button, height_button, dot_button, gap_button, thickn
     WIN.blit(back_text, (back_button.x + ((back_button.width - back_text.get_width()) / 2), (back_button.y + ((back_button.height - back_text.get_height()) / 2))))
 
     pygame.display.update()
-
-
-def reticule_display():
-    pass
 
 
 def handle_cool(*buttons):

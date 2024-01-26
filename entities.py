@@ -235,6 +235,19 @@ class Player:
         self.facing_right = True
         self.invulnerable = False
 
+        #   zoom will make the player move faster in the direction they are facing,
+        #   and will grant them 30% damage resistance, but it is limited, and they
+        #   will not be able to do anything else.
+        self.zoom = False
+        self.zoom_vel = 800 / main.FPS
+        self.zoom_damage_res = 0.3
+
+        self.zoom_max = 500
+        self.zoom_current = self.zoom_max
+        self.zoom_cooldown = 0
+        self.zoom_cool = 2.4 * main.FPS
+        self.zoom_cooldown_rate = 20 / main.FPS
+
     def dash(self, x, y):  # dash in the direction of the mouse
         a = abs(self.x - x)
         b = abs(self.y - y)
@@ -282,7 +295,7 @@ class Player:
 
     def take_damage(self, dam):
         if not self.invulnerable:
-            self.health -= dam
+            self.health -= (dam * self.zoom_damage_res)
             if self.health < 0:
                 self.health = 0
 
