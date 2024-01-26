@@ -482,7 +482,7 @@ def handle_rockets(rockets, player, enemies, bullets, covers):
                 rocket.explode_time -= 1
 
 
-def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, covers, attribute_bar_ico, progress_bar_ico, health_packs, reticule, phase, ui):
+def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, covers, attribute_bar_ico, progress_bar_ico, health_packs, reticule, phase, ui, bosses):
     WIN.fill(COLOURS["black"])
     for pack in health_packs:
         WIN.blit(pack.img, pack.rect)
@@ -512,6 +512,12 @@ def display(player, enemies, dashes, bullets, r_icos, glaive_icos, warp_icos, wa
             WIN.blit(
                 pygame.transform.rotate(bullet.img, bullet.angle),
                 bullet.rect)
+
+    #   Show boss
+
+    for boss in bosses:
+        WIN.blit(boss.rotated, boss.rect)
+        pygame.draw.rect(WIN, COLOURS["blue"], boss.rect)
 
     #   Show player
 
@@ -930,6 +936,7 @@ def main():
     health_packs = []
     glaives = []
     shockwaves = []
+    bosses = [entities.Boss()]
     covers = [
         entities.Cover(
             "shield",
@@ -1312,7 +1319,7 @@ def main():
             handle_rockets(rockets, player, enemies, bullets, covers)
             handle_shockwaves(shockwaves, enemies)
             display(player, enemies, icos, bullets, r_icos, glaive_icos, warp_icos, warp_active_ico, rockets, glaives, shockwaves, covers, attribute_bar_ico,
-                    progress_bar_ico, health_packs, reticule, phase, ui)
+                    progress_bar_ico, health_packs, reticule, phase, ui, bosses)
 
             if enemy_spawn_cooldown:
                 if esc_time >= spawn_rules["delay"] * FPS:

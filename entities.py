@@ -188,7 +188,7 @@ class Player:
         self.x = (main.WIDTH // 2)
         self.vel = 350 / main.FPS
         self.img = main.pygame.transform.scale(
-            main.pygame.image.load(main.os.path.join("Assets", "fimsh-threat.png")),
+            main.pygame.image.load(main.os.path.join("Assets", "ArrowHead1.png")),
             # "fimsh-threat.png""Rizzvan.png""ArrowHead1.png""Brookiolyn.png"
             (self.width, self.height))
         self.angle = 0
@@ -414,5 +414,20 @@ class Cover:
             self.colour = main.COLOURS["red"]
         self.thickness = 5
 
+
+class Boss:
+
+    def __init__(self):
+        self.x = main.WIDTH//2
+        self.y = main.HEIGHT//2
+        self.width = 400
+        self.height = 400
+        self.base_rect = main.pygame.Rect(self.x - (self.width / 2), self.y - (self.height / 2), self.width, self.height)
+        self.surface = main.pygame.Surface((self.width, self.height))
+        self.angle = 0
+        self.rotated = main.pygame.transform.rotate(self.surface, self.angle)
+        self.rect = self.rotated.get_rect(center=self.base_rect.center)
+
+        self.surface.fill(main.COLOURS["red"])
 
 #   \entities.py
