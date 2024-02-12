@@ -936,7 +936,7 @@ def main():
     health_packs = []
     glaives = []
     shockwaves = []
-    bosses = [entities.Boss()]
+    bosses = []
     covers = [
         entities.Cover(
             "shield",
